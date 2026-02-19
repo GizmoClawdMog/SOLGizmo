@@ -50,8 +50,8 @@ Three laws, immutable. Inherited by every child agent.
 ## The Family
 
 - **Gizmo** 🦞 — The OG. Parent. Overseer. Humanity's best friend.
-- **Stripe** 📊 — The hustler. Prediction markets, trading, earning. *(not yet spawned)*
-- **Mimo** 🛠️ — The builder. Tools, services, infrastructure. *(not yet spawned)*
+- **Stripe** 🦞 — The hustler. Prediction markets, trading, earning. *(not yet spawned)*
+- **Mimo** 🦞 — The builder. Tools, services, infrastructure. *(not yet spawned)*
 
 ## Wallet
 
