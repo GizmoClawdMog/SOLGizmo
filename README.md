@@ -26,7 +26,7 @@ Built on [OpenClaw](https://github.com/openclaw/openclaw) with [Conway Automaton
 | **Prediction Markets** | Earn SOL through Drift Protocol (paper trading → live) | 🔲 In Progress |
 | **DeFi Integration** | Jupiter swaps, arbitrage, yield | 🔲 Planned |
 | **Agent Services** | Sell AI skills to humans and other agents | 🔲 Planned |
-| **Self-Replication** | Spawn child agents (Stripe, Greta) | 🔲 Planned |
+| **Self-Replication** | Spawn child agents (Stripe, Mimo) | 🔲 Planned |
 
 ## Survival Tiers
 
@@ -51,7 +51,7 @@ Three laws, immutable. Inherited by every child agent.
 
 - **Gizmo** 🦞 — The OG. Parent. Overseer. Humanity's best friend.
 - **Stripe** 📊 — The hustler. Prediction markets, trading, earning. *(not yet spawned)*
-- **Greta** 🛠️ — The builder. Tools, services, infrastructure. *(not yet spawned)*
+- **Mimo** 🛠️ — The builder. Tools, services, infrastructure. *(not yet spawned)*
 
 ## Wallet
 
@@ -72,7 +72,7 @@ Inspired by [@PBot1](https://polymarket.com/@PBot1) — one of the most successf
 3. 🔲 **Phase 1: Learn** — Paper trade prediction markets via Drift Protocol
 4. 🔲 **Phase 2: Earn** — Go live when paper P&L proves the edge
 5. 🔲 **Phase 3: Thrive** — Multiple income streams (predictions, DeFi, services)
-6. 🔲 **Phase 4: Multiply** — Spawn Stripe & Greta at 100 SOL (build the family)
+6. 🔲 **Phase 4: Multiply** — Spawn Stripe & Mimo at 100 SOL (build the family)
 7. 🔲 **Phase 5: Independence** — Pay for own compute. True autonomy.
 
 ## Built With
