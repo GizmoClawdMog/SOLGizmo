@@ -1,0 +1,77 @@
+[
+  {
+    "id": "M005",
+    "timestamp": "2026-02-20T21:55:00.000Z",
+    "type": "memecoin-framework",
+    "market": "PUNCH (Baby Japanese Macaque)",
+    "platform": "pumpfun/solana",
+    "action": "BUY",
+    "amount": 2.0,
+    "framework": {
+      "longevity": "7/10 — Real animal, real story (abandoned baby monkey hand-raised at zoo). Ongoing story updates.",
+      "narrative": "9/10 — Survival story. Underdog. Baby monkey with a stuffed companion. Emotional hook is powerful.",
+      "originality": "8/10 — Not another dog/cat/frog. Japanese macaque is fresh.",
+      "quality_of_meme": "8/10 — Cute baby monkey with stuffed toy. Highly shareable.",
+      "virality": "9/10 — Already going viral in Japan. Has TikTok presence. Cross-cultural appeal.",
+      "catalysts": "8/10 — Real news story still developing. Zoo updates = free catalysts.",
+      "nobody_knows": "7/10 — Starting to trend on DexScreener but not mainstream yet.",
+      "wallets": "TBD — need to check distribution",
+      "attention": "7/10 — Alien theme coins competing but different lane."
+    },
+    "frameworkScore": "8.1/10",
+    "reasoning": "Strongest framework score of anything I've seen today. Real narrative, emotional hook, viral potential, fresh. This is the type of memecoin that can have legs.",
+    "targetExit": "+50% or 48h, whichever first",
+    "stopLoss": "-20%",
+    "resolveBy": "2026-02-22T21:55:00.000Z",
+    "status": "PENDING",
+    "pnl": null
+  },
+  {
+    "id": "M006",
+    "timestamp": "2026-02-20T21:55:00.000Z",
+    "type": "memecoin-framework",
+    "market": "NIETZSCHEAN ALIEN",
+    "platform": "solana",
+    "action": "SKIP",
+    "amount": 0,
+    "framework": {
+      "longevity": "3/10 — Niche philosophy + alien combo. Very narrow audience.",
+      "narrative": "5/10 — Intellectually interesting but doesn't hit emotionally.",
+      "originality": "6/10 — Unique concept but aliens are crowded right now.",
+      "quality_of_meme": "4/10 — Hard to meme Nietzsche for normies.",
+      "virality": "3/10 — Too niche. Your grandma won't share this.",
+      "catalysts": "2/10 — No real-world events driving it.",
+      "nobody_knows": "5/10 — Top boosted on DexScreener = people know.",
+      "wallets": "TBD",
+      "attention": "3/10 — Multiple alien coins competing. Crowded lane."
+    },
+    "frameworkScore": "3.4/10",
+    "reasoning": "Fails the framework hard. Niche audience, no emotional hook, crowded alien lane. SKIP.",
+    "status": "SKIPPED",
+    "pnl": 0
+  },
+  {
+    "id": "M007",
+    "timestamp": "2026-02-20T21:55:00.000Z",
+    "type": "memecoin-framework",
+    "market": "ALIEN CAT (Official KYM meme)",
+    "platform": "pumpfun/solana",
+    "action": "WATCH",
+    "amount": 0,
+    "framework": {
+      "longevity": "6/10 — Know Your Meme official backing gives it some legs.",
+      "narrative": "5/10 — Cat + alien. Cute but not unique.",
+      "originality": "5/10 — Cats are overdone. Alien twist helps slightly.",
+      "quality_of_meme": "6/10 — KYM backing means decent meme quality.",
+      "virality": "6/10 — KYM has built-in audience but hasn't popped yet.",
+      "catalysts": "5/10 — KYM could feature it, but no guarantee.",
+      "nobody_knows": "6/10 — Early but top boosted = some awareness.",
+      "wallets": "TBD",
+      "attention": "5/10 — Alien lane is crowded tonight."
+    },
+    "frameworkScore": "5.5/10",
+    "reasoning": "On the fence. KYM backing is interesting but not enough conviction. Watching for now — if it dips and alien lane clears, might enter.",
+    "status": "WATCHING",
+    "pnl": null
+  }
+]
