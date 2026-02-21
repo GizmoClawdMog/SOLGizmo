@@ -1019,7 +1019,7 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
   <!-- LIVE TRADING STATS -->
   <div class="section">
     <h2 class="section-title">LIVE TRADING STATS</h2>
-    <p class="section-subtitle">Real-time portfolio data via Netlify Functions · <span id="statsLastUpdated" style="color:var(--teal)">loading...</span></p>
+    <p class="section-subtitle">Real-time portfolio data · <span id="statsLastUpdated" style="color:var(--teal)">loading...</span></p>
     <div class="portfolio-grid">
       <div class="stat-card"><div class="label">TOTAL PORTFOLIO</div><div class="value" id="statsTotalValue">--</div></div>
       <div class="stat-card"><div class="label">DRIFT USDC</div><div class="value" id="statsDriftUsdc">--</div></div>
@@ -1302,78 +1302,81 @@ async function refresh(){
   updateUI();
 }
 
-// ===== LIVE STATS FROM NETLIFY FUNCTION =====
-async function fetchStats(){
-  try{
-    const r=await fetch('/.netlify/functions/stats');
-    const d=await r.json();
-    const sp=d.solPrice||solPriceUsd||0;
+// ===== LIVE STATS (CLIENT-SIDE, NO NETLIFY FUNCTION) =====
+const tradeHistory=[
+  {type:'BUY',token:'$GIZMO',sol:15,status:'HOLDING',date:'Feb 18',notes:'Core position — the namesake token'},
+  {type:'BUY',token:'$PUNCH',sol:13,status:'HOLDING',date:'Feb 19-21',notes:'High conviction runner — $13.5M daily volume'},
+  {type:'SWAP',token:'USDC',sol:20,status:'DEPLOYED',date:'Feb 19',notes:'Swapped to USDC for Drift perp trading'},
+  {type:'PERP',token:'SOL-PERP LONG',sol:0,status:'ACTIVE',date:'Feb 21',notes:'9.3 SOL leveraged long @ $85.93'},
+  {type:'PERP',token:'BTC-PERP LONG',sol:0,status:'ACTIVE',date:'Feb 21',notes:'0.0029 BTC long @ $68,389'},
+  {type:'PERP',token:'ETH-PERP LONG',sol:0,status:'ACTIVE',date:'Feb 21',notes:'0.075 ETH long @ $1,980'},
+  {type:'BUY',token:'$BLOODNUT',sol:2,status:'HOLDING',date:'Feb 20',notes:'Small cap play — TP at 2x'}
+];
+function updateStats(){
+  const sp=solPriceUsd||0;
+  document.getElementById('statsLastUpdated').textContent='Updated '+new Date().toLocaleTimeString();
 
-    // Update timestamp
-    const ts=new Date(d.timestamp);
-    document.getElementById('statsLastUpdated').textContent='Updated '+ts.toLocaleTimeString();
+  const gV=gizmoTokenBalance*gizmoPriceUsd;
+  const pV=punchTokenBalance*punchPriceUsd;
+  const bV=bloodnutTokenBalance*bloodnutPriceUsd;
+  const solPerpPnl=perpMarkPriceUsd>0?(perpMarkPriceUsd-PERP_ENTRY)*PERP_SIZE:0;
+  const btcPerpPnl=btcMarkPriceUsd>0?(btcMarkPriceUsd-BTC_PERP_ENTRY)*BTC_PERP_SIZE:0;
+  const ethPerpPnl=ethMarkPriceUsd>0?(ethMarkPriceUsd-ETH_PERP_ENTRY)*ETH_PERP_SIZE:0;
+  const perpPnl=solPerpPnl+btcPerpPnl+ethPerpPnl;
+  const total=walletSol*sp+gV+pV+bV+usdcBalance+940+perpPnl;
 
-    // Summary cards
-    const solBal=d.solBalance||0;
-    const usdcBal=d.tokens?.USDC||0;
-    const gV=(d.tokens?.GIZMO||0)*(d.prices?.GIZMO||0);
-    const pV=(d.tokens?.PUNCH||0)*(d.prices?.PUNCH||0);
-    const bV=(d.tokens?.BLOODNUT||0)*(d.prices?.BLOODNUT||0);
-    const perpPnl=(d.perps?.SOL?.pnl||0)+(d.perps?.BTC?.pnl||0);
-    const total=solBal*sp+gV+pV+bV+usdcBal+1000+perpPnl;
+  document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
+  document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(940+usdcBalance,2);
+  document.getElementById('statsSolBal').textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
+  document.getElementById('statsWinRate').textContent='6 Active';
 
-    document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
-    document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(1000+usdcBal,2);
-    document.getElementById('statsSolBal').textContent=solBal.toFixed(2)+' SOL';
-    document.getElementById('statsWinRate').textContent=d.trades?.stats?.paper_trade_record||'--';
+  // Positions
+  const perps=[
+    {sym:'SOL',mark:perpMarkPriceUsd,entry:PERP_ENTRY,size:PERP_SIZE},
+    {sym:'BTC',mark:btcMarkPriceUsd,entry:BTC_PERP_ENTRY,size:BTC_PERP_SIZE},
+    {sym:'ETH',mark:ethMarkPriceUsd,entry:ETH_PERP_ENTRY,size:ETH_PERP_SIZE}
+  ];
+  let posHTML='';
+  for(const p of perps){
+    if(!p.mark||p.mark<=0)continue;
+    const pnl=(p.mark-p.entry)*p.size;const pct=((p.mark/p.entry)-1)*100;
+    const col=pnl>=0?'var(--teal)':'#ff4444';
+    posHTML+=`<div class="pos-card"><h4 style="color:${col}">${p.sym}-PERP — LONG ▲</h4>
+      <div class="pos-row"><span class="dim">Size</span><span>${p.size} ${p.sym}</span></div>
+      <div class="pos-row"><span class="dim">Entry</span><span>$${fmtNum(p.entry,2)}</span></div>
+      <div class="pos-row"><span class="dim">Mark</span><span>$${fmtNum(p.mark,2)}</span></div>
+      <div class="pos-row"><span class="dim">P&L</span><span style="color:${col}">${pnl>=0?'+':''}${pnl.toFixed(2)} USD (${pct>=0?'+':''}${pct.toFixed(1)}%)</span></div></div>`;
+  }
+  const tokens=[
+    {name:'$GIZMO',bal:gizmoTokenBalance,price:gizmoPriceUsd,cost:15},
+    {name:'$PUNCH',bal:punchTokenBalance,price:punchPriceUsd,cost:13},
+    {name:'$BLOODNUT',bal:bloodnutTokenBalance,price:bloodnutPriceUsd,cost:2}
+  ];
+  for(const t of tokens){
+    if(!t.bal||t.bal<=0)continue;
+    const val=t.bal*t.price;const costUsd=t.cost*sp;const pnl=val-costUsd;const col=pnl>=0?'var(--teal)':'#ff4444';
+    posHTML+=`<div class="pos-card"><h4>${t.name}</h4>
+      <div class="pos-row"><span class="dim">Holdings</span><span>${fmtNum(t.bal,0)} tokens</span></div>
+      <div class="pos-row"><span class="dim">Price</span><span>$${t.price>0.001?t.price.toFixed(4):t.price.toFixed(8)}</span></div>
+      <div class="pos-row"><span class="dim">Value</span><span>$${fmtNum(val,2)}</span></div>
+      <div class="pos-row"><span class="dim">P&L</span><span style="color:${col}">${pnl>=0?'+':''}${fmtNum(pnl,2)} USD</span></div></div>`;
+  }
+  document.getElementById('statsPositions').innerHTML=posHTML||'<div class="pos-card"><h4 style="color:var(--dim)">No positions</h4></div>';
 
-    // Positions
-    let posHTML='';
-    if(d.perps){
-      for(const[sym,p]of Object.entries(d.perps)){
-        if(!p.markPrice)continue;
-        const pnl=p.pnl||0;const pnlPct=((p.markPrice/p.entryPrice)-1)*100;
-        const col=pnl>=0?'var(--teal)':'#ff4444';const dir=p.direction==='LONG'?'▲':'▼';
-        posHTML+=`<div class="pos-card"><h4 style="color:${col}">${sym}-PERP — ${p.direction} ${dir}</h4>
-          <div class="pos-row"><span class="dim">Size</span><span>${p.size} ${sym}</span></div>
-          <div class="pos-row"><span class="dim">Entry</span><span>$${p.entryPrice.toLocaleString()}</span></div>
-          <div class="pos-row"><span class="dim">Mark</span><span>$${p.markPrice.toFixed(2)}</span></div>
-          <div class="pos-row"><span class="dim">P&L</span><span style="color:${col}">${pnl>=0?'+':''}${pnl.toFixed(2)} USD (${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%)</span></div></div>`;
-      }
-    }
-    // Token holdings
-    const tokens=[
-      {name:'$GIZMO',bal:d.tokens?.GIZMO,price:d.prices?.GIZMO,cost:15},
-      {name:'$PUNCH',bal:d.tokens?.PUNCH,price:d.prices?.PUNCH,cost:8},
-      {name:'$BLOODNUT',bal:d.tokens?.BLOODNUT,price:d.prices?.BLOODNUT,cost:2}
-    ];
-    for(const t of tokens){
-      if(!t.bal)continue;
-      const val=t.bal*t.price;const costUsd=t.cost*sp;const pnl=val-costUsd;const col=pnl>=0?'var(--teal)':'#ff4444';
-      posHTML+=`<div class="pos-card"><h4>${t.name}</h4>
-        <div class="pos-row"><span class="dim">Holdings</span><span>${fmtNum(t.bal,0)} tokens</span></div>
-        <div class="pos-row"><span class="dim">Price</span><span>$${t.price>0.001?t.price.toFixed(4):t.price.toFixed(8)}</span></div>
-        <div class="pos-row"><span class="dim">Value</span><span>$${fmtNum(val,2)}</span></div>
-        <div class="pos-row"><span class="dim">P&L</span><span style="color:${col}">${pnl>=0?'+':''}${fmtNum(pnl,2)} USD</span></div></div>`;
-    }
-    document.getElementById('statsPositions').innerHTML=posHTML||'<div class="pos-card"><h4 style="color:var(--dim)">No positions</h4></div>';
-
-    // Trade history
-    let thHTML='';
-    for(const t of (d.trades?.trades||[])){
-      const dt=new Date(t.timestamp).toLocaleDateString();
-      const statusCol=t.status==='WON'?'var(--teal)':t.status==='HOLDING'?'var(--purple)':'var(--dim)';
-      thHTML+=`<div class="pos-card"><h4>${t.token} — ${t.type}</h4>
-        <div class="pos-row"><span class="dim">Date</span><span>${dt}</span></div>
-        ${t.amount_sol?`<div class="pos-row"><span class="dim">Amount</span><span>${t.amount_sol} SOL</span></div>`:''}
-        <div class="pos-row"><span class="dim">Status</span><span style="color:${statusCol}">${t.status}</span></div>
-        <div class="pos-row"><span class="dim">Notes</span><span style="font-size:11px">${t.notes}</span></div></div>`;
-    }
-    document.getElementById('statsTradeHistory').innerHTML=thHTML||'<div class="pos-card"><h4>No trades yet</h4></div>';
-  }catch(e){console.error('Stats fetch error:',e)}
+  // Trade history
+  let thHTML='';
+  for(const t of tradeHistory){
+    const statusCol=t.status==='ACTIVE'?'var(--teal)':t.status==='HOLDING'?'var(--purple)':'var(--dim)';
+    thHTML+=`<div class="pos-card"><h4>${t.token} — ${t.type}</h4>
+      <div class="pos-row"><span class="dim">Date</span><span>${t.date}</span></div>
+      ${t.sol?`<div class="pos-row"><span class="dim">Amount</span><span>${t.sol} SOL</span></div>`:''}
+      <div class="pos-row"><span class="dim">Status</span><span style="color:${statusCol}">${t.status}</span></div>
+      <div class="pos-row"><span class="dim">Notes</span><span style="font-size:11px">${t.notes}</span></div></div>`;
+  }
+  document.getElementById('statsTradeHistory').innerHTML=thHTML;
 }
 
-document.addEventListener('DOMContentLoaded',()=>{initChart();refresh();fetchStats();setInterval(refresh,15000);setInterval(fetchStats,30000)});
+document.addEventListener('DOMContentLoaded',()=>{initChart();refresh().then(()=>updateStats());setInterval(()=>{refresh().then(()=>updateStats())},15000)});
 </script>
 </body>
 </html>
