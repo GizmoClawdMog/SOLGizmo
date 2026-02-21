@@ -1162,47 +1162,29 @@ async function fetchWalletBalance(){
 }
 
 async function fetchTokenBalances(){
-  // Try Helius DAS API first (better CORS)
-  try{
-    const r=await fetch('https://mainnet.helius-rpc.com/?api-key=2de73660-14b8-412a-9ff2-8e6989c53266',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      jsonrpc:'2.0',id:1,method:'getTokenAccountsByOwner',
-      params:[WALLET,{programId:'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'},{encoding:'jsonParsed'}]
-    })});
-    const d=await r.json();
-    gizmoTokenBalance=0;punchTokenBalance=0;bloodnutTokenBalance=0;usdcBalance=0;
-    if(d.result&&d.result.value){
-      for(const acct of d.result.value){
-        const info=acct.account.data.parsed.info;
-        const mint=info.mint;
-        const amt=parseFloat(info.tokenAmount.uiAmountString||'0');
-        if(mint===GIZMO_MINT) gizmoTokenBalance=amt;
-        if(mint===PUNCH_MINT) punchTokenBalance=amt;
-        if(mint===BLOODNUT_MINT) bloodnutTokenBalance=amt;
-        if(mint===USDC_MINT) usdcBalance=amt;
+  gizmoTokenBalance=0;punchTokenBalance=0;bloodnutTokenBalance=0;usdcBalance=0;
+  // Fetch from BOTH token programs (classic SPL + Token-2022)
+  const programs=['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA','TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'];
+  for(const prog of programs){
+    try{
+      const r=await fetch('https://mainnet.helius-rpc.com/?api-key=2de73660-14b8-412a-9ff2-8e6989c53266',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        jsonrpc:'2.0',id:1,method:'getTokenAccountsByOwner',
+        params:[WALLET,{programId:prog},{encoding:'jsonParsed'}]
+      })});
+      const d=await r.json();
+      if(d.result&&d.result.value){
+        for(const acct of d.result.value){
+          const info=acct.account.data.parsed.info;
+          const mint=info.mint;
+          const amt=parseFloat(info.tokenAmount.uiAmountString||'0');
+          if(mint===GIZMO_MINT) gizmoTokenBalance=amt;
+          if(mint===PUNCH_MINT) punchTokenBalance=amt;
+          if(mint===BLOODNUT_MINT) bloodnutTokenBalance=amt;
+          if(mint===USDC_MINT) usdcBalance=amt;
+        }
       }
-    }
-    if(gizmoTokenBalance>0||punchTokenBalance>0||bloodnutTokenBalance>0) return;
-  }catch(e){console.error('Helius token fetch error:',e)}
-  // Fallback: public RPC
-  try{
-    const r=await fetch('https://api.mainnet-beta.solana.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      jsonrpc:'2.0',id:1,method:'getTokenAccountsByOwner',
-      params:[WALLET,{programId:'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'},{encoding:'jsonParsed'}]
-    })});
-    const d=await r.json();
-    gizmoTokenBalance=0;punchTokenBalance=0;bloodnutTokenBalance=0;usdcBalance=0;
-    if(d.result&&d.result.value){
-      for(const acct of d.result.value){
-        const info=acct.account.data.parsed.info;
-        const mint=info.mint;
-        const amt=parseFloat(info.tokenAmount.uiAmountString||'0');
-        if(mint===GIZMO_MINT) gizmoTokenBalance=amt;
-        if(mint===PUNCH_MINT) punchTokenBalance=amt;
-        if(mint===BLOODNUT_MINT) bloodnutTokenBalance=amt;
-        if(mint===USDC_MINT) usdcBalance=amt;
-      }
-    }
-  }catch(e){console.error('Public RPC token fetch error:',e)}
+    }catch(e){console.error('Token fetch error ('+prog+'):',e)}
+  }
 }
 
 function fmtNum(n,dec){
