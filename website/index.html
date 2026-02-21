@@ -1129,12 +1129,17 @@ let solPriceUsd=0,gizmoPriceUsd=0,punchPriceUsd=0,bloodnutPriceUsd=0,perpMarkPri
 let gizmoTokenBalance=0,punchTokenBalance=0,bloodnutTokenBalance=0;
 
 async function fetchSolPrice(){
+  // Try Jupiter price API first (most reliable, no rate limit)
+  try{const r=await fetch('https://api.jup.ag/price/v2?ids=So11111111111111111111111111111111111111112');const d=await r.json();if(d.data&&d.data['So11111111111111111111111111111111111111112']){solPriceUsd=parseFloat(d.data['So11111111111111111111111111111111111111112'].price);return}}catch(e){}
+  // Fallback: use Drift DLOB oracle
+  try{if(perpMarkPriceUsd>0){solPriceUsd=perpMarkPriceUsd;return}}catch(e){}
+  // Fallback: CoinGecko
   try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');const d=await r.json();solPriceUsd=d.solana.usd}catch(e){console.error('SOL price error:',e)}
 }
 
 async function fetchDexPrices(){
-  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${GIZMO_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)gizmoPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('GIZMO price error:',e)}
-  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${PUNCH_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)punchPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('PUNCH price error:',e)}
+  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${GIZMO_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0){gizmoPriceUsd=parseFloat(d.pairs[0].priceUsd||0);const pn=parseFloat(d.pairs[0].priceNative||0);if(pn>0&&gizmoPriceUsd>0&&solPriceUsd===0)solPriceUsd=gizmoPriceUsd/pn}}catch(e){console.error('GIZMO price error:',e)}
+  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${PUNCH_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0){punchPriceUsd=parseFloat(d.pairs[0].priceUsd||0);const pn=parseFloat(d.pairs[0].priceNative||0);if(pn>0&&punchPriceUsd>0&&solPriceUsd===0)solPriceUsd=punchPriceUsd/pn}}catch(e){console.error('PUNCH price error:',e)}
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${BLOODNUT_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)bloodnutPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('BLOODNUT price error:',e)}
 }
 
@@ -1150,8 +1155,9 @@ async function fetchWalletBalance(){
 }
 
 async function fetchTokenBalances(){
+  // Try Helius DAS API first (better CORS)
   try{
-    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const r=await fetch('https://mainnet.helius-rpc.com/?api-key=2de73660-14b8-412a-9ff2-8e6989c53266',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       jsonrpc:'2.0',id:1,method:'getTokenAccountsByOwner',
       params:[WALLET,{programId:'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'},{encoding:'jsonParsed'}]
     })});
@@ -1167,7 +1173,27 @@ async function fetchTokenBalances(){
         if(mint===BLOODNUT_MINT) bloodnutTokenBalance=amt;
       }
     }
-  }catch(e){console.error('Token fetch error:',e)}
+    if(gizmoTokenBalance>0||punchTokenBalance>0||bloodnutTokenBalance>0) return;
+  }catch(e){console.error('Helius token fetch error:',e)}
+  // Fallback: public RPC
+  try{
+    const r=await fetch('https://api.mainnet-beta.solana.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      jsonrpc:'2.0',id:1,method:'getTokenAccountsByOwner',
+      params:[WALLET,{programId:'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'},{encoding:'jsonParsed'}]
+    })});
+    const d=await r.json();
+    gizmoTokenBalance=0;punchTokenBalance=0;bloodnutTokenBalance=0;
+    if(d.result&&d.result.value){
+      for(const acct of d.result.value){
+        const info=acct.account.data.parsed.info;
+        const mint=info.mint;
+        const amt=parseFloat(info.tokenAmount.uiAmountString||'0');
+        if(mint===GIZMO_MINT) gizmoTokenBalance=amt;
+        if(mint===PUNCH_MINT) punchTokenBalance=amt;
+        if(mint===BLOODNUT_MINT) bloodnutTokenBalance=amt;
+      }
+    }
+  }catch(e){console.error('Public RPC token fetch error:',e)}
 }
 
 function fmtNum(n,dec){
