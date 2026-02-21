@@ -3,7 +3,7 @@ import bs58 from 'bs58';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export const RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
+export const RPC_URL = process.env.SOLANA_RPC_URL || 'https://mainnet.helius-rpc.com/?api-key=2de73660-14b8-412a-9ff2-8e6989c53266';
 
 export function loadWallet(): Keypair {
   const walletPath = process.env.WALLET_PATH || path.join(
