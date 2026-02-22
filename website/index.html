@@ -16,7 +16,13 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .pixel{font-family:'Press Start 2P',monospace}
 
 /* ===== EPIC INTRO ===== */
-#intro{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;overflow:hidden}
+#intro-gate{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:10000;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:20px}
+#intro-gate.gone{display:none}
+#intro-gate .gate-text{font-family:'Press Start 2P',monospace;color:var(--teal);font-size:clamp(14px,3vw,24px);text-shadow:0 0 20px var(--teal),0 0 40px var(--purple);animation:gatePulse 1.5s ease-in-out infinite alternate}
+@keyframes gatePulse{0%{opacity:.6;transform:scale(.97)}100%{opacity:1;transform:scale(1.03)}}
+#intro-gate .gate-sub{color:var(--dim);font-size:12px;font-family:'Courier New',monospace}
+#intro{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;overflow:hidden;display:none}
+#intro.playing{display:block}
 #intro.fade{opacity:0;pointer-events:none;transition:opacity .8s}
 .stars{position:absolute;width:100%;height:100%}
 .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 1s infinite alternate}
@@ -57,6 +63,11 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .intro-title{position:absolute;bottom:15%;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;color:var(--teal);font-size:clamp(18px,4vw,36px);text-shadow:0 0 20px var(--teal),0 0 40px var(--purple);opacity:0;z-index:30}
 .intro-title.show{animation:titleReveal 1.5s forwards}
 @keyframes titleReveal{0%{opacity:0;transform:translateX(-50%) translateY(20px) scale(.8)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+/* ===== LIVE DOT ===== */
+.pos-card{position:relative}
+.live-dot{position:absolute;top:10px;right:10px;width:10px;height:10px;border-radius:50%;background:#14F195;box-shadow:0 0 6px #14F195,0 0 12px #14F195,0 0 24px rgba(20,241,149,.4);animation:livePulse 2s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 6px #14F195,0 0 12px #14F195}50%{opacity:.6;box-shadow:0 0 3px #14F195,0 0 6px #14F195}}
 
 /* ===== MAIN ===== */
 .main-content{opacity:0;transition:opacity .8s}.main-content.show{opacity:1}
@@ -531,6 +542,12 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
 </style>
 </head>
 <body>
+
+<!-- ===== TAP TO ENTER ===== -->
+<div id="intro-gate">
+  <div class="gate-text">⚡ TAP TO ENTER ⚡</div>
+  <div class="gate-sub">🔊 sound on for full experience</div>
+</div>
 
 <!-- ===== INTRO ===== -->
 <div id="intro">
@@ -1206,46 +1223,38 @@ function playGremlinTheme(){
   });
 }
 
-// Click anywhere to unlock audio (browser autoplay policy)
+// ===== GATE + INTRO SEQUENCE =====
 let audioUnlocked=false;
-document.addEventListener('click',()=>{
-  if(!audioUnlocked){
-    audioUnlocked=true;
-    ensureAudio();
-    // Replay intro sounds if user clicked during intro
-    if(!document.getElementById('intro').classList.contains('fade')){
-      playGremlinTheme();
-      setTimeout(playLaser,500);
-      setTimeout(playExplosion,1400);
-    }
-  }
-},{once:false});
 
-// Auto-attempt audio on load (works if user has interacted with site before)
-try{ensureAudio();audioUnlocked=true}catch(e){}
-
-// ===== INTRO SEQUENCE =====
+// Pre-generate stars while waiting
 const sf=document.getElementById('starfield');
 for(let i=0;i<150;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;animation-delay:${Math.random()*2}s;animation-duration:${.5+Math.random()*1.5}s`;sf.appendChild(s)}
 
-// Start Gremlins theme immediately
-setTimeout(()=>{if(audioUnlocked)playGremlinTheme()},200);
-// Laser fires with sound
-setTimeout(()=>{document.getElementById('laser').classList.add('fire');if(audioUnlocked)playLaser()},1000);
-setTimeout(()=>{
-  document.getElementById('lobster').classList.add('hit');
-  document.getElementById('flash').classList.add('flash');
-  document.getElementById('burst').classList.add('go');
-  if(audioUnlocked)playExplosion();
+document.getElementById('intro-gate').addEventListener('click',()=>{
+  // Unlock audio
+  ensureAudio();
+  audioUnlocked=true;
+  // Hide gate, show intro
+  document.getElementById('intro-gate').classList.add('gone');
+  document.getElementById('intro').classList.add('playing');
+  // Play intro with sounds
+  setTimeout(()=>playGremlinTheme(),200);
+  setTimeout(()=>{document.getElementById('laser').classList.add('fire');playLaser()},1000);
+  setTimeout(()=>{
+    document.getElementById('lobster').classList.add('hit');
+    document.getElementById('flash').classList.add('flash');
+    document.getElementById('burst').classList.add('go');
+    playExplosion();
   const pc=document.getElementById('particles');
   const cols=['#ff4400','#ff8800','#ffcc00','#ff0000','#ff6600','#9945FF','#14F195'];
   for(let i=0;i<35;i++){const p=document.createElement('div');p.className='particle go';const a=Math.random()*Math.PI*2,d=150+Math.random()*300;p.style.cssText=`--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px;width:${4+Math.random()*8}px;height:${4+Math.random()*8}px;background:${cols[~~(Math.random()*cols.length)]};animation-delay:${Math.random()*.2}s`;pc.appendChild(p)}
   const fc=document.getElementById('fragments');const frags=['*','x','+','o','#','~'];
   for(let i=0;i<8;i++){const f=document.createElement('div');f.className='fragment go';const a=Math.random()*Math.PI*2,d=200+Math.random()*400,r=(Math.random()-.5)*720;f.style.cssText=`--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px;--rot:${r}deg;animation-delay:${Math.random()*.15}s`;f.textContent=frags[~~(Math.random()*frags.length)];fc.appendChild(f)}
-},1900);
-setTimeout(()=>{document.getElementById('laser').style.display='none';document.getElementById('shipScene').classList.add('fly');document.getElementById('introTitle').classList.add('show')},2500);
-setTimeout(()=>{document.getElementById('intro').classList.add('fade');document.getElementById('main').classList.add('show')},5000);
-setTimeout(()=>{document.getElementById('intro').style.display='none'},6000);
+  },1900);
+  setTimeout(()=>{document.getElementById('laser').style.display='none';document.getElementById('shipScene').classList.add('fly');document.getElementById('introTitle').classList.add('show')},2500);
+  setTimeout(()=>{document.getElementById('intro').classList.add('fade');document.getElementById('main').classList.add('show')},5000);
+  setTimeout(()=>{document.getElementById('intro').style.display='none'},6000);
+},{once:true});
 
 // TV channel cycle
 const tvCh=['GIZMO TV','SOL: $$$','PUMP','LIVE','HODL!','GM'];let tvI=0;
@@ -1465,7 +1474,7 @@ function updateStats(){
     if(!p.mark||p.mark<=0)continue;
     const pnl=(p.mark-p.entry)*p.size;const pct=((p.mark/p.entry)-1)*100;
     const col=pnl>=0?'var(--teal)':'#ff4444';
-    posHTML+=`<div class="pos-card"><h4 style="color:${col}">${p.sym}-PERP — LONG ▲</h4>
+    posHTML+=`<div class="pos-card"><div class="live-dot"></div><h4 style="color:${col}">${p.sym}-PERP — LONG ▲</h4>
       <div class="pos-row"><span class="dim">Size</span><span>${p.size} ${p.sym}</span></div>
       <div class="pos-row"><span class="dim">Entry</span><span>$${fmtNum(p.entry,2)}</span></div>
       <div class="pos-row"><span class="dim">Mark</span><span>$${fmtNum(p.mark,2)}</span></div>
@@ -1479,7 +1488,7 @@ function updateStats(){
   for(const t of tokens){
     if(!t.bal||t.bal<=0)continue;
     const val=t.bal*t.price;const costUsd=t.cost*sp;const pnl=val-costUsd;const col=pnl>=0?'var(--teal)':'#ff4444';
-    posHTML+=`<div class="pos-card"><h4>${t.name}</h4>
+    posHTML+=`<div class="pos-card"><div class="live-dot"></div><h4>${t.name}</h4>
       <div class="pos-row"><span class="dim">Holdings</span><span>${fmtNum(t.bal,0)} tokens</span></div>
       <div class="pos-row"><span class="dim">Price</span><span>$${t.price>0.001?t.price.toFixed(4):t.price.toFixed(8)}</span></div>
       <div class="pos-row"><span class="dim">Value</span><span>$${fmtNum(val,2)}</span></div>
@@ -1491,7 +1500,8 @@ function updateStats(){
   let thHTML='';
   for(const t of tradeHistory){
     const statusCol=t.status==='ACTIVE'?'var(--teal)':t.status==='HOLDING'?'var(--purple)':'var(--dim)';
-    thHTML+=`<div class="pos-card"><h4>${t.token} — ${t.type}</h4>
+    const liveDot=(t.status==='ACTIVE'||t.status==='HOLDING')?'<div class="live-dot"></div>':'';
+    thHTML+=`<div class="pos-card">${liveDot}<h4>${t.token} — ${t.type}</h4>
       <div class="pos-row"><span class="dim">Date</span><span>${t.date}</span></div>
       ${t.sol?`<div class="pos-row"><span class="dim">Amount</span><span>${t.sol} SOL</span></div>`:''}
       <div class="pos-row"><span class="dim">Status</span><span style="color:${statusCol}">${t.status}</span></div>
