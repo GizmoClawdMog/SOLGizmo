@@ -1445,8 +1445,7 @@ async function fetchDexPrices(){
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${PUNCH_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0){punchPriceUsd=parseFloat(d.pairs[0].priceUsd||0);const pn=parseFloat(d.pairs[0].priceNative||0);if(pn>0&&punchPriceUsd>0&&solPriceUsd===0)solPriceUsd=punchPriceUsd/pn}}catch(e){console.error('PUNCH price error:',e)}
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${BLOODNUT_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)bloodnutPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('BLOODNUT price error:',e)}
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${LOREGUY_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)loreguyPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('LOREGUY price error:',e)}
-  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ORAMAMA_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)oramamaPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('ORAMAMA price error:',e)}
-  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${TRENCH_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)trenchPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('TRENCH price error:',e)}
+  // ORAMAMA & TRENCH closed — no price fetch needed
 }
 
 async function fetchPerpPrice(){
@@ -1538,23 +1537,7 @@ function updateUI(){
   const lpE=document.getElementById('loreguyPnl');
   if(lV>0){lpE.innerHTML=`<span style="color:${lPU>=0?'var(--teal)':'#ff4444'}">${lPU>=0?'+':''}${fmtNum(lPU,2)} USD (${lPP>=0?'+':''}${lPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${lPS>=0?'+':''}${lPS.toFixed(2)} SOL</span>`}else{lpE.textContent='--'}
 
-  // ORAMAMA
-  const oV=oramamaTokenBalance*oramamaPriceUsd, oIU=5*solPriceUsd;
-  document.getElementById('oramamaHoldings').textContent=oramamaTokenBalance>0?fmtNum(oramamaTokenBalance,0)+' tokens':'--';
-  document.getElementById('oramamaPrice').textContent=oramamaPriceUsd>0?'$'+oramamaPriceUsd.toFixed(8):'--';
-  document.getElementById('oramamaValue').textContent=oV>0?'$'+fmtNum(oV,2):'--';
-  const oPU=oV-oIU, oPS=solPriceUsd>0?(oV/solPriceUsd)-5:0, oPP=oIU>0?((oV/oIU)-1)*100:0;
-  const opE=document.getElementById('oramamaPnl');
-  if(oV>0){opE.innerHTML=`<span style="color:${oPU>=0?'var(--teal)':'#ff4444'}">${oPU>=0?'+':''}${fmtNum(oPU,2)} USD (${oPP>=0?'+':''}${oPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${oPS>=0?'+':''}${oPS.toFixed(2)} SOL</span>`}else{opE.textContent='--'}
-
-  // TRENCH
-  const tRV=trenchTokenBalance*trenchPriceUsd, tRIU=3*solPriceUsd;
-  document.getElementById('trenchHoldings').textContent=trenchTokenBalance>0?fmtNum(trenchTokenBalance,0)+' tokens':'--';
-  document.getElementById('trenchPrice').textContent=trenchPriceUsd>0?'$'+trenchPriceUsd.toFixed(6):'--';
-  document.getElementById('trenchValue').textContent=tRV>0?'$'+fmtNum(tRV,2):'--';
-  const tRPU=tRV-tRIU, tRPS=solPriceUsd>0?(tRV/solPriceUsd)-3:0, tRPP=tRIU>0?((tRV/tRIU)-1)*100:0;
-  const trpE=document.getElementById('trenchPnl');
-  if(tRV>0){trpE.innerHTML=`<span style="color:${tRPU>=0?'var(--teal)':'#ff4444'}">${tRPU>=0?'+':''}${fmtNum(tRPU,2)} USD (${tRPP>=0?'+':''}${tRPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${tRPS>=0?'+':''}${tRPS.toFixed(2)} SOL</span>`}else{trpE.textContent='--'}
+  // ORAMAMA & TRENCH — CLOSED, no live data needed
 
   const tMV=gV+pV+bV+lV, tMI=31*solPriceUsd, tPU=tMV-tMI, tPS=solPriceUsd>0?(tMV/solPriceUsd)-31:0;
   document.getElementById('memeValue').textContent=tMV>0?'$'+fmtNum(tMV,2):'--';
