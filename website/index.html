@@ -959,7 +959,7 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
         <div class="stat-card"><div class="label">TOTAL VALUE</div><div class="value" id="totalPortValue">--</div></div>
         <div class="stat-card"><div class="label">SOL BALANCE</div><div class="value" id="solBalanceHud">--</div></div>
         <div class="stat-card"><div class="label">TOTAL USDC</div><div class="value" id="driftUsdc">--</div></div>
-        <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">7 Active</div></div>
+        <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">6 Active</div></div>
       </div>
       <div style="background:var(--dark2);border:1px solid rgba(20,241,149,.2);border-radius:12px;padding:20px;margin-top:16px;height:380px;box-shadow:0 0 30px rgba(20,241,149,.05)">
         <canvas id="pnlChart"></canvas>
@@ -1002,13 +1002,11 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
         <div class="pos-row"><span class="dim">Value</span><span id="bloodnutValue">--</span></div>
         <div class="pos-row"><span class="dim">P&L</span><span id="bloodnutPnl">--</span></div>
       </div>
-      <div class="pos-card">
-        <h4>$LOREGUY</h4>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$LOREGUY — CLOSED ❌</h4>
         <div class="pos-row"><span class="dim">Invested</span><span>1 SOL</span></div>
-        <div class="pos-row"><span class="dim">Holdings</span><span id="loreguyHoldings">--</span></div>
-        <div class="pos-row"><span class="dim">Price</span><span id="loreguyPrice">--</span></div>
-        <div class="pos-row"><span class="dim">Value</span><span id="loreguyValue">--</span></div>
-        <div class="pos-row"><span class="dim">P&L</span><span id="loreguyPnl">--</span></div>
+        <div class="pos-row"><span class="dim">Returned</span><span>~0.3 SOL</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:#ff4444">~-0.7 SOL (-70%)</span></div>
       </div>
       <div class="pos-card" style="border-left:3px solid var(--teal)">
         <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
@@ -1454,7 +1452,7 @@ async function fetchDexPrices(){
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${GIZMO_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0){gizmoPriceUsd=parseFloat(d.pairs[0].priceUsd||0);const pn=parseFloat(d.pairs[0].priceNative||0);if(pn>0&&gizmoPriceUsd>0&&solPriceUsd===0)solPriceUsd=gizmoPriceUsd/pn}}catch(e){console.error('GIZMO price error:',e)}
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${PUNCH_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0){punchPriceUsd=parseFloat(d.pairs[0].priceUsd||0);const pn=parseFloat(d.pairs[0].priceNative||0);if(pn>0&&punchPriceUsd>0&&solPriceUsd===0)solPriceUsd=punchPriceUsd/pn}}catch(e){console.error('PUNCH price error:',e)}
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${BLOODNUT_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)bloodnutPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('BLOODNUT price error:',e)}
-  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${LOREGUY_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)loreguyPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('LOREGUY price error:',e)}
+  // LOREGUY closed — no price fetch needed
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${JAWZ_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)jawzPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('JAWZ price error:',e)}
 }
 
@@ -1490,7 +1488,7 @@ async function fetchTokenBalances(){
           if(mint===GIZMO_MINT) gizmoTokenBalance=amt;
           if(mint===PUNCH_MINT) punchTokenBalance=amt;
           if(mint===BLOODNUT_MINT) bloodnutTokenBalance=amt;
-          if(mint===LOREGUY_MINT) loreguyTokenBalance=amt;
+          // LOREGUY closed
           if(mint===JAWZ_MINT) jawzTokenBalance=amt;
           if(mint===USDC_MINT) usdcBalance=amt;
         }
@@ -1537,14 +1535,7 @@ function updateUI(){
   const bpE=document.getElementById('bloodnutPnl');
   if(bV>0){bpE.innerHTML=`<span style="color:${bPU>=0?'var(--teal)':'#ff4444'}">${bPU>=0?'+':''}${fmtNum(bPU,2)} USD (${bPP>=0?'+':''}${bPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${bPS>=0?'+':''}${bPS.toFixed(2)} SOL</span>`}else{bpE.textContent='--'}
 
-  // LOREGUY
-  const lV=loreguyTokenBalance*loreguyPriceUsd, lIU=1*solPriceUsd;
-  document.getElementById('loreguyHoldings').textContent=loreguyTokenBalance>0?fmtNum(loreguyTokenBalance,0)+' tokens':'--';
-  document.getElementById('loreguyPrice').textContent=loreguyPriceUsd>0?'$'+loreguyPriceUsd.toFixed(8):'--';
-  document.getElementById('loreguyValue').textContent=lV>0?'$'+fmtNum(lV,2):'--';
-  const lPU=lV-lIU, lPS=solPriceUsd>0?(lV/solPriceUsd)-1:0, lPP=lIU>0?((lV/lIU)-1)*100:0;
-  const lpE=document.getElementById('loreguyPnl');
-  if(lV>0){lpE.innerHTML=`<span style="color:${lPU>=0?'var(--teal)':'#ff4444'}">${lPU>=0?'+':''}${fmtNum(lPU,2)} USD (${lPP>=0?'+':''}${lPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${lPS>=0?'+':''}${lPS.toFixed(2)} SOL</span>`}else{lpE.textContent='--'}
+  // LOREGUY — CLOSED
 
   // JAWZ
   const jV=jawzTokenBalance*jawzPriceUsd, jIU=3*solPriceUsd;
@@ -1555,7 +1546,7 @@ function updateUI(){
   const jpE=document.getElementById('jawzPnl');
   if(jV>0){jpE.innerHTML=`<span style="color:${jPU>=0?'var(--teal)':'#ff4444'}">${jPU>=0?'+':''}${fmtNum(jPU,2)} USD (${jPP>=0?'+':''}${jPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${jPS>=0?'+':''}${jPS.toFixed(2)} SOL</span>`}else{jpE.textContent='--'}
 
-  const tMV=gV+pV+bV+lV+jV, tMI=34*solPriceUsd, tPU=tMV-tMI, tPS=solPriceUsd>0?(tMV/solPriceUsd)-31:0;
+  const tMV=gV+pV+bV+jV, tMI=33*solPriceUsd, tPU=tMV-tMI, tPS=solPriceUsd>0?(tMV/solPriceUsd)-31:0;
   document.getElementById('memeValue').textContent=tMV>0?'$'+fmtNum(tMV,2):'--';
   document.getElementById('memeValueSol').textContent=solPriceUsd>0&&tMV>0?(tMV/solPriceUsd).toFixed(2)+' SOL':'';
   const mpE=document.getElementById('memePnl');
@@ -1634,7 +1625,7 @@ const tradeHistory=[
   {type:'PERP',token:'ETH-PERP LONG',sol:0,status:'ACTIVE',date:'Feb 21',notes:'0.075 ETH long @ $1,980'},
   {type:'BUY',token:'$BLOODNUT',sol:2,status:'HOLDING',date:'Feb 20',notes:'Small cap play — TP at 2x'},
   {type:'TRADE',token:'$WINSTON',sol:5,status:'CLOSED ✅',date:'Feb 21',notes:'Bought 5 SOL → Sold 8.25 SOL. PnL: +3.25 SOL (+65%). Clean flip 🧹',pnl:'+3.25 SOL (+65%)'},
-  {type:'BUY',token:'$LOREGUY',sol:1,status:'HOLDING',date:'Feb 21',notes:'6/9 framework score. 51h old, $32K mcap, graduated PumpSwap. TX: 467Ys...'},
+  {type:'TRADE',token:'$LOREGUY',sol:1,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 1 SOL @ $32K MC → Auto-sold at ~$15K MC. PnL: ~-0.7 SOL (-70%). SL hit.',pnl:'~-0.7 SOL (-70%)'},
   {type:'TRADE',token:'$ORAMAMA',sol:5,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 5 SOL @ 800K MC → Sold 2.53 SOL @ 413K MC. PnL: -2.47 SOL (-49%). SL hit.',pnl:'-2.47 SOL (-49%)'},
   {type:'TRADE',token:'$TRENCH',sol:3,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 3 SOL @ 1.34M MC → Sold all for 2.15 SOL. PnL: -0.85 SOL (-28%). Auto-exit.',pnl:'-0.85 SOL (-28%)'},
   {type:'BUY',token:'$JAWZ 🦈',sol:3,status:'HOLDING',date:'Feb 22',notes:'6.5/9 framework. PVP game catalyst pending. 195K MC entry. TX: EJky...'}
@@ -1656,7 +1647,7 @@ function updateStats(){
   document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
   document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(127+usdcBalance,2);
   document.getElementById('statsSolBal').textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
-  document.getElementById('statsWinRate').textContent='7 Active / 4 Closed (1W: +3.25 / -6.62 SOL)';
+  document.getElementById('statsWinRate').textContent='6 Active / 5 Closed (1W: +3.25 / -7.32 SOL)';
 
   // Positions
   const perps=[
@@ -1680,7 +1671,7 @@ function updateStats(){
     {name:'$GIZMO',bal:gizmoTokenBalance,price:gizmoPriceUsd,cost:15},
     {name:'$PUNCH',bal:punchTokenBalance,price:punchPriceUsd,cost:13},
     {name:'$BLOODNUT',bal:bloodnutTokenBalance,price:bloodnutPriceUsd,cost:2},
-    {name:'$LOREGUY',bal:loreguyTokenBalance,price:loreguyPriceUsd,cost:1},
+    // LOREGUY closed
     {name:'$JAWZ',bal:jawzTokenBalance,price:jawzPriceUsd,cost:3}
   ];
   for(const t of tokens){
