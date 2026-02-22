@@ -1004,9 +1004,11 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
     <p class="section-subtitle">Live perpetual futures via Drift Protocol</p>
     <div class="portfolio-grid">
       <div class="stat-card"><div class="label">TOTAL PERP P&L</div><div class="value" id="perpTotalPnl">--</div></div>
+      <div class="stat-card"><div class="label">ACCOUNT EQUITY</div><div class="value" id="perpEquity">--</div></div>
+      <div class="stat-card"><div class="label">LEVERAGE</div><div class="value" style="color:#ff8800" id="perpLeverage">--</div></div>
+      <div class="stat-card"><div class="label">EST. LIQ PRICE (SOL)</div><div class="value" style="color:#ff4444" id="perpLiqPrice">--</div></div>
       <div class="stat-card"><div class="label">FREE COLLATERAL</div><div class="value" id="perpCollateral">$963</div></div>
       <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">3</div></div>
-      <div class="stat-card"><div class="label">PLATFORM</div><div class="value" style="font-size:14px">Drift Protocol</div></div>
     </div>
     <div class="positions" style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
       <div class="pos-card">
@@ -1468,10 +1470,22 @@ function updateUI(){
     const col=ethPerpPnlUsd>=0?'var(--teal)':'#ff4444';
     const el2=document.getElementById('ethPerpPnl');if(el2)el2.innerHTML=`<span style="color:${col}">${str}</span>`;
   }
-  // Total perp PnL
+  // Total perp PnL + Leverage + Liq Price
   const totalPerpPnl=solPerpPnlUsd+btcPerpPnlUsd+ethPerpPnlUsd;
   const tpEl=document.getElementById('perpTotalPnl');
   if(tpEl){const col=totalPerpPnl>=0?'var(--teal)':'#ff4444';tpEl.innerHTML=`<span style="color:${col}">${(totalPerpPnl>=0?'+':'')}${totalPerpPnl.toFixed(2)} USD</span>`}
+  // Leverage & Liq
+  const driftCollateral=1000;
+  const solN=PERP_SIZE*(perpMarkPriceUsd||0), btcN=BTC_PERP_SIZE*(btcMarkPriceUsd||0), ethN=ETH_PERP_SIZE*(ethMarkPriceUsd||0);
+  const totalNotional=solN+btcN+ethN;
+  const equity=driftCollateral+totalPerpPnl;
+  const leverage=equity>0?totalNotional/equity:0;
+  const maint=totalNotional*0.05;
+  const liqDrop=equity>maint?(equity-maint)/PERP_SIZE:0;
+  const solLiq=perpMarkPriceUsd>0?perpMarkPriceUsd-liqDrop:0;
+  const levEl=document.getElementById('perpLeverage');if(levEl)levEl.textContent=leverage>0?leverage.toFixed(2)+'x':'--';
+  const liqEl=document.getElementById('perpLiqPrice');if(liqEl)liqEl.textContent=solLiq>0?'~$'+solLiq.toFixed(2):'--';
+  const eqEl=document.getElementById('perpEquity');if(eqEl){const eqCol=equity>=driftCollateral?'var(--teal)':'#ff4444';eqEl.innerHTML=`<span style="color:${eqCol}">$${equity.toFixed(2)}</span>`}
 
   const wV=walletSol*solPriceUsd, perpVal=solPerpPnlUsd+btcPerpPnlUsd, total=wV+tMV+usdcBalance+1000+perpVal;
   const tvE=document.getElementById('totalPortValue');if(tvE)tvE.textContent=total>0?'$'+fmtNum(total,2):'--';
