@@ -1078,9 +1078,9 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
     <p class="section-subtitle">Polymarket trades · Powered by Gizmo's analysis</p>
     <div class="portfolio-grid">
       <div class="stat-card"><div class="label">PLATFORM</div><div class="value" style="color:var(--purple)">Polymarket</div></div>
-      <div class="stat-card"><div class="label">DEPLOYED</div><div class="value" id="predDeployed" style="color:var(--purple)">$406</div></div>
-      <div class="stat-card"><div class="label">POTENTIAL PAYOUT</div><div class="value" id="predPnl" style="color:var(--teal)">$550</div></div>
-      <div class="stat-card"><div class="label">ACTIVE BETS</div><div class="value" id="predWinRate" style="color:var(--teal)">4</div></div>
+      <div class="stat-card"><div class="label">DEPLOYED</div><div class="value" id="predDeployed" style="color:var(--purple)">$505</div></div>
+      <div class="stat-card"><div class="label">POTENTIAL PAYOUT</div><div class="value" id="predPnl" style="color:var(--teal)">$734</div></div>
+      <div class="stat-card"><div class="label">ACTIVE BETS</div><div class="value" id="predWinRate" style="color:var(--teal)">7</div></div>
     </div>
     <div class="positions" id="predPositions">
       <div class="pos-card" style="border-left:3px solid var(--teal)">
@@ -1121,6 +1121,36 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
         <div class="pos-row"><span class="dim">Payout if correct</span><span style="color:var(--teal)">$150 (+$9)</span></div>
         <div class="pos-row"><span class="dim">Confidence</span><span>90%</span></div>
         <div class="pos-row"><span class="dim">Expires</span><span>Dec 31, 2026</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--yellow)">OPEN ORDER ⏳</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4 style="color:var(--teal)">BTC $66K-$68K on Feb 23? — YES</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>97 YES @ $0.41</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$39.77</span></div>
+        <div class="pos-row"><span class="dim">Payout if correct</span><span style="color:var(--teal)">$97 (+$57)</span></div>
+        <div class="pos-row"><span class="dim">Confidence</span><span>65%</span></div>
+        <div class="pos-row"><span class="dim">Expires</span><span>Feb 23, 2026</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--yellow)">OPEN ORDER ⏳</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4 style="color:var(--teal)">ETH $1,900-$2,000 on Feb 23? — YES</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>58 YES @ $0.60</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$34.80</span></div>
+        <div class="pos-row"><span class="dim">Payout if correct</span><span style="color:var(--teal)">$58 (+$23)</span></div>
+        <div class="pos-row"><span class="dim">Confidence</span><span>70%</span></div>
+        <div class="pos-row"><span class="dim">Expires</span><span>Feb 23, 2026</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--yellow)">OPEN ORDER ⏳</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4 style="color:var(--teal)">SOL $80-$90 on Feb 23? — YES</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>29 YES @ $0.85</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$24.65</span></div>
+        <div class="pos-row"><span class="dim">Payout if correct</span><span style="color:var(--teal)">$29 (+$4)</span></div>
+        <div class="pos-row"><span class="dim">Confidence</span><span>80%</span></div>
+        <div class="pos-row"><span class="dim">Expires</span><span>Feb 23, 2026</span></div>
         <div class="pos-row"><span class="dim">Status</span><span style="color:var(--yellow)">OPEN ORDER ⏳</span></div>
       </div>
     </div>
@@ -1625,7 +1655,10 @@ const tradeHistory=[
   {type:'PERP',token:'ETH-PERP LONG',sol:0,status:'ACTIVE',date:'Feb 21',notes:'0.075 ETH long @ $1,980'},
   {type:'BUY',token:'$BLOODNUT',sol:2,status:'HOLDING',date:'Feb 20',notes:'Small cap play — TP at 2x'},
   {type:'TRADE',token:'$WINSTON',sol:5,status:'CLOSED ✅',date:'Feb 21',notes:'Bought 5 SOL → Sold 8.25 SOL. PnL: +3.25 SOL (+65%). Clean flip 🧹',pnl:'+3.25 SOL (+65%)'},
-  {type:'TRADE',token:'$LOREGUY',sol:1,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 1 SOL @ $32K MC → Auto-sold at ~$15K MC. PnL: ~-0.7 SOL (-70%). SL hit.',pnl:'~-0.7 SOL (-70%)'},
+  {type:'POLY',token:'BTC $66-68K Feb 23',sol:0,status:'OPEN ⏳',date:'Feb 22',notes:'Polymarket: 97 YES @ $0.41 = $39.77. Payout $97 if BTC in range.',pnl:'pending'},
+  {type:'POLY',token:'ETH $1.9-2K Feb 23',sol:0,status:'OPEN ⏳',date:'Feb 22',notes:'Polymarket: 58 YES @ $0.60 = $34.80. Payout $58 if ETH in range.',pnl:'pending'},
+  {type:'POLY',token:'SOL $80-90 Feb 23',sol:0,status:'OPEN ⏳',date:'Feb 22',notes:'Polymarket: 29 YES @ $0.85 = $24.65. Payout $29 if SOL in range.',pnl:'pending'},
+  {type:'TRADE',token:'$LOREGUY',sol:1,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 1 SOL @ $27K MC → Sold at $14.7K MC. PnL: -0.574 SOL (-57.4%). SL hit.',pnl:'-0.574 SOL (-57.4%)'},
   {type:'TRADE',token:'$ORAMAMA',sol:5,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 5 SOL @ 800K MC → Sold 2.53 SOL @ 413K MC. PnL: -2.47 SOL (-49%). SL hit.',pnl:'-2.47 SOL (-49%)'},
   {type:'TRADE',token:'$TRENCH',sol:3,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 3 SOL @ 1.34M MC → Sold all for 2.15 SOL. PnL: -0.85 SOL (-28%). Auto-exit.',pnl:'-0.85 SOL (-28%)'},
   {type:'BUY',token:'$JAWZ 🦈',sol:3,status:'HOLDING',date:'Feb 22',notes:'6.5/9 framework. PVP game catalyst pending. 195K MC entry. TX: EJky...'}
