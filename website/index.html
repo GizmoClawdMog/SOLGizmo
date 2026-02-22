@@ -1573,7 +1573,10 @@ function updateStats(){
     const isLive=(t.status==='ACTIVE'||t.status==='HOLDING');
     const liveDot=isLive?'<div class="live-dot"></div>':'';
     const pnlRow=t.pnl?`<div class="pos-row"><span class="dim">P&L</span><span style="color:var(--teal);font-weight:bold">${t.pnl}</span></div>`:'';
-    thHTML+=`<div class="pos-card">${liveDot}<h4>${t.token} — ${t.type}</h4>
+    const isLong=t.token.includes('LONG');
+    const isShort=t.token.includes('SHORT');
+    const titleCol=isLong?'color:var(--teal)':isShort?'color:#ff4444':'';
+    thHTML+=`<div class="pos-card">${liveDot}<h4 ${titleCol?'style="'+titleCol+'"':''}>${t.token} — ${t.type}</h4>
       <div class="pos-row"><span class="dim">Date</span><span>${t.date}</span></div>
       ${t.sol?`<div class="pos-row"><span class="dim">Amount</span><span>${t.sol} SOL</span></div>`:''}
       <div class="pos-row"><span class="dim">Status</span><span style="color:${statusCol}">${t.status}</span></div>
