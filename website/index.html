@@ -1642,8 +1642,8 @@ const tradeHistory=[
   {type:'BUY',token:'$BLOODNUT',sol:2,status:'HOLDING',date:'Feb 20',notes:'Small cap play — TP at 2x'},
   {type:'TRADE',token:'$WINSTON',sol:5,status:'CLOSED ✅',date:'Feb 21',notes:'Bought 5 SOL → Sold 8.25 SOL. PnL: +3.25 SOL (+65%). Clean flip 🧹',pnl:'+3.25 SOL (+65%)'},
   {type:'BUY',token:'$LOREGUY',sol:1,status:'HOLDING',date:'Feb 21',notes:'6/9 framework score. 51h old, $32K mcap, graduated PumpSwap. TX: 467Ys...'},
-  {type:'BUY',token:'$ORAMAMA',sol:5,status:'HOLDING',date:'Feb 22',notes:'6.5/9 framework. PUNCH companion "stuffed monkey" narrative. 800K MC, 42K buys. TX: 4XqJ...'},
-  {type:'BUY',token:'$TRENCH',sol:3,status:'HOLDING',date:'Feb 22',notes:'7/9 framework. Solana gaming + Xbox integration. 1.34M MC. TX: 5AS5...'}
+  {type:'TRADE',token:'$ORAMAMA',sol:5,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 5 SOL @ 800K MC → Sold 2.53 SOL @ 413K MC. PnL: -2.47 SOL (-49%). SL hit.',pnl:'-2.47 SOL (-49%)'},
+  {type:'BUY',token:'$TRENCH',sol:3,status:'HOLDING (50% sold)',date:'Feb 22',notes:'7/9 framework. Bought 3 SOL @ 1.34M. Sold 50% @ 2M MC for 2.15 SOL (+43%). Riding rest to 5M.'}
 ];
 function updateStats(){
   const sp=solPriceUsd||0;
@@ -1662,7 +1662,7 @@ function updateStats(){
   document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
   document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(127+usdcBalance,2);
   document.getElementById('statsSolBal').textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
-  document.getElementById('statsWinRate').textContent='9 Active / 1 Closed';
+  document.getElementById('statsWinRate').textContent='8 Active / 2 Closed';
 
   // Positions
   const perps=[
