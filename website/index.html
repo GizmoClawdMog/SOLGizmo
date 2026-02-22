@@ -1033,7 +1033,7 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
       <div class="stat-card"><div class="label">TOTAL PERP P&L</div><div class="value" id="perpTotalPnl">--</div></div>
       <div class="stat-card"><div class="label">ACCOUNT EQUITY</div><div class="value" id="perpEquity">--</div></div>
       <div class="stat-card"><div class="label">LEVERAGE</div><div class="value" style="color:#ff8800" id="perpLeverage">--</div></div>
-      <div class="stat-card"><div class="label">EST. LIQ PRICE (SOL)</div><div class="value" style="color:#ff4444" id="perpLiqPrice">--</div></div>
+      <div class="stat-card"><div class="label">RISK LEVEL</div><div class="value" style="color:var(--teal)" id="perpLiqPrice">LOW</div></div>
       <div class="stat-card"><div class="label">DRIFT FUNDS</div><div class="value" id="perpCollateral">$86</div></div>
       <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">2 Active / 1 Closed</div></div>
     </div>
@@ -1639,11 +1639,10 @@ function updateStats(){
   document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
   document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(127+usdcBalance,2);
   document.getElementById('statsSolBal').textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
-  document.getElementById('statsWinRate').textContent='6 Active / 4 Closed';
+  document.getElementById('statsWinRate').textContent='6 Active / 4 Closed (1W: +3.25 / -6.62 SOL)';
 
   // Positions
   const perps=[
-    {sym:'SOL',mark:perpMarkPriceUsd,entry:PERP_ENTRY,size:PERP_SIZE,dir:'LONG'},
     {sym:'BTC',mark:btcMarkPriceUsd,entry:BTC_PERP_ENTRY,size:BTC_PERP_SIZE,dir:'LONG'},
     {sym:'ETH',mark:ethMarkPriceUsd,entry:ETH_PERP_ENTRY,size:ETH_PERP_SIZE,dir:'LONG'}
   ];
