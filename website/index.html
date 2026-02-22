@@ -958,7 +958,7 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
       <div class="portfolio-grid">
         <div class="stat-card"><div class="label">TOTAL VALUE</div><div class="value" id="totalPortValue">--</div></div>
         <div class="stat-card"><div class="label">SOL BALANCE</div><div class="value" id="solBalanceHud">--</div></div>
-        <div class="stat-card"><div class="label">TOTAL USDC</div><div class="value" id="driftUsdc">$1,000</div></div>
+        <div class="stat-card"><div class="label">TOTAL USDC</div><div class="value" id="driftUsdc">$1,094</div></div>
         <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">7 Active</div></div>
       </div>
       <div style="background:var(--dark2);border:1px solid rgba(20,241,149,.2);border-radius:12px;padding:20px;margin-top:16px;height:380px;box-shadow:0 0 30px rgba(20,241,149,.05)">
@@ -1022,7 +1022,7 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
       <div class="stat-card"><div class="label">ACCOUNT EQUITY</div><div class="value" id="perpEquity">--</div></div>
       <div class="stat-card"><div class="label">LEVERAGE</div><div class="value" style="color:#ff8800" id="perpLeverage">--</div></div>
       <div class="stat-card"><div class="label">EST. LIQ PRICE (SOL)</div><div class="value" style="color:#ff4444" id="perpLiqPrice">--</div></div>
-      <div class="stat-card"><div class="label">DRIFT FUNDS</div><div class="value" id="perpCollateral">$963</div></div>
+      <div class="stat-card"><div class="label">DRIFT FUNDS</div><div class="value" id="perpCollateral">$46</div></div>
       <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">3</div></div>
     </div>
     <div class="positions" style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
@@ -1049,6 +1049,27 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
         <div class="pos-row"><span class="dim">Entry Price</span><span>$1,980.00</span></div>
         <div class="pos-row"><span class="dim">Mark Price</span><span id="ethPerpMark">--</span></div>
         <div class="pos-row"><span class="dim">Unrealized P&L</span><span id="ethPerpPnl">--</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREDICTION MARKETS -->
+  <div class="section">
+    <h2 class="section-title">🔮 PREDICTION MARKETS</h2>
+    <p class="section-subtitle">Polymarket trades · Powered by Gizmo's analysis</p>
+    <div class="portfolio-grid">
+      <div class="stat-card"><div class="label">PLATFORM</div><div class="value" style="color:var(--purple)">Polymarket</div></div>
+      <div class="stat-card"><div class="label">DEPLOYED</div><div class="value" id="predDeployed">$500</div></div>
+      <div class="stat-card"><div class="label">PREDICTION P&L</div><div class="value" id="predPnl" style="color:var(--teal)">$0.00</div></div>
+      <div class="stat-card"><div class="label">WIN RATE</div><div class="value" id="predWinRate" style="color:var(--teal)">--</div></div>
+    </div>
+    <div class="positions" id="predPositions">
+      <div class="pos-card">
+        <h4 style="color:var(--purple)">⏳ Setting up Polymarket...</h4>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--teal)">$500 USDC bridged to Polygon ✅</span></div>
+        <div class="pos-row"><span class="dim">Network</span><span>Polygon (Mayan SWIFT bridge)</span></div>
+        <div class="pos-row"><span class="dim">Wallet</span><span style="font-size:10px">0xee4a...81E5</span></div>
+        <div class="pos-row"><span class="dim">Next</span><span>First predictions incoming...</span></div>
       </div>
     </div>
   </div>
@@ -1509,7 +1530,7 @@ function updateUI(){
   const tpEl=document.getElementById('perpTotalPnl');
   if(tpEl){const col=totalPerpPnl>=0?'var(--teal)':'#ff4444';tpEl.innerHTML=`<span style="color:${col}">${(totalPerpPnl>=0?'+':'')}${totalPerpPnl.toFixed(2)} USD</span>`}
   // Leverage & Liq
-  const driftCollateral=1000;
+  const driftCollateral=46;
   const solN=PERP_SIZE*(perpMarkPriceUsd||0), btcN=BTC_PERP_SIZE*(btcMarkPriceUsd||0), ethN=ETH_PERP_SIZE*(ethMarkPriceUsd||0);
   const totalNotional=solN+btcN+ethN;
   const equity=driftCollateral+totalPerpPnl;
@@ -1521,10 +1542,10 @@ function updateUI(){
   const liqEl=document.getElementById('perpLiqPrice');if(liqEl)liqEl.textContent=solLiq>0?'~$'+solLiq.toFixed(2):'--';
   const eqEl=document.getElementById('perpEquity');if(eqEl){const eqCol=equity>=driftCollateral?'var(--teal)':'#ff4444';eqEl.innerHTML=`<span style="color:${eqCol}">$${equity.toFixed(2)}</span>`}
 
-  const wV=walletSol*solPriceUsd, perpVal=solPerpPnlUsd+btcPerpPnlUsd, total=wV+tMV+usdcBalance+1000+perpVal;
+  const wV=walletSol*solPriceUsd, perpVal=solPerpPnlUsd+btcPerpPnlUsd, total=wV+tMV+usdcBalance+46+perpVal;
   const tvE=document.getElementById('totalPortValue');if(tvE)tvE.textContent=total>0?'$'+fmtNum(total,2):'--';
   const sbE=document.getElementById('solBalanceHud');if(sbE)sbE.textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
-  const duE=document.getElementById('driftUsdc');if(duE)duE.textContent='$'+fmtNum(1000+usdcBalance,2);
+  const duE=document.getElementById('driftUsdc');if(duE)duE.textContent='$'+fmtNum(46+usdcBalance,2);
   const now=new Date(),lbl=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
   chartHistory.push({label:lbl,value:total});if(chartHistory.length>40)chartHistory.shift();
   if(pnlChart){pnlChart.data.labels=chartHistory.map(h=>h.label);pnlChart.data.datasets[0].data=chartHistory.map(h=>h.value);pnlChart.update('none')}
@@ -1562,9 +1583,9 @@ function updateStats(){
   const total=walletSol*sp+gV+pV+bV+lV+usdcBalance+940+perpPnl;
 
   document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
-  document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(940+usdcBalance,2);
+  document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(46+usdcBalance,2);
   document.getElementById('statsSolBal').textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
-  document.getElementById('statsWinRate').textContent='8 Active / 1 Closed';
+  document.getElementById('statsWinRate').textContent='7 Active / 1 Closed';
 
   // Positions
   const perps=[
