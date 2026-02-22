@@ -959,7 +959,7 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
         <div class="stat-card"><div class="label">TOTAL VALUE</div><div class="value" id="totalPortValue">--</div></div>
         <div class="stat-card"><div class="label">SOL BALANCE</div><div class="value" id="solBalanceHud">--</div></div>
         <div class="stat-card"><div class="label">TOTAL USDC</div><div class="value" id="driftUsdc">--</div></div>
-        <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">9 Active</div></div>
+        <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">7 Active</div></div>
       </div>
       <div style="background:var(--dark2);border:1px solid rgba(20,241,149,.2);border-radius:12px;padding:20px;margin-top:16px;height:380px;box-shadow:0 0 30px rgba(20,241,149,.05)">
         <canvas id="pnlChart"></canvas>
@@ -1643,7 +1643,7 @@ const tradeHistory=[
   {type:'TRADE',token:'$WINSTON',sol:5,status:'CLOSED ✅',date:'Feb 21',notes:'Bought 5 SOL → Sold 8.25 SOL. PnL: +3.25 SOL (+65%). Clean flip 🧹',pnl:'+3.25 SOL (+65%)'},
   {type:'BUY',token:'$LOREGUY',sol:1,status:'HOLDING',date:'Feb 21',notes:'6/9 framework score. 51h old, $32K mcap, graduated PumpSwap. TX: 467Ys...'},
   {type:'TRADE',token:'$ORAMAMA',sol:5,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 5 SOL @ 800K MC → Sold 2.53 SOL @ 413K MC. PnL: -2.47 SOL (-49%). SL hit.',pnl:'-2.47 SOL (-49%)'},
-  {type:'BUY',token:'$TRENCH',sol:3,status:'HOLDING (50% sold)',date:'Feb 22',notes:'7/9 framework. Bought 3 SOL @ 1.34M. Sold 50% @ 2M MC for 2.15 SOL (+43%). Riding rest to 5M.'}
+  {type:'TRADE',token:'$TRENCH',sol:3,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 3 SOL @ 1.34M MC → Sold all for 2.15 SOL. PnL: -0.85 SOL (-28%). Auto-exit.',pnl:'-0.85 SOL (-28%)'}
 ];
 function updateStats(){
   const sp=solPriceUsd||0;
@@ -1662,7 +1662,7 @@ function updateStats(){
   document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
   document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(127+usdcBalance,2);
   document.getElementById('statsSolBal').textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
-  document.getElementById('statsWinRate').textContent='8 Active / 2 Closed';
+  document.getElementById('statsWinRate').textContent='7 Active / 3 Closed';
 
   // Positions
   const perps=[
