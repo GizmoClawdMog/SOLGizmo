@@ -959,7 +959,7 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
         <div class="stat-card"><div class="label">TOTAL VALUE</div><div class="value" id="totalPortValue">--</div></div>
         <div class="stat-card"><div class="label">SOL BALANCE</div><div class="value" id="solBalanceHud">--</div></div>
         <div class="stat-card"><div class="label">TOTAL USDC</div><div class="value" id="driftUsdc">--</div></div>
-        <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">6 Active</div></div>
+        <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">7 Active</div></div>
       </div>
       <div style="background:var(--dark2);border:1px solid rgba(20,241,149,.2);border-radius:12px;padding:20px;margin-top:16px;height:380px;box-shadow:0 0 30px rgba(20,241,149,.05)">
         <canvas id="pnlChart"></canvas>
@@ -1009,6 +1009,15 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
         <div class="pos-row"><span class="dim">Price</span><span id="loreguyPrice">--</span></div>
         <div class="pos-row"><span class="dim">Value</span><span id="loreguyValue">--</span></div>
         <div class="pos-row"><span class="dim">P&L</span><span id="loreguyPnl">--</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4>$JAWZ 🦈</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>3 SOL</span></div>
+        <div class="pos-row"><span class="dim">Holdings</span><span id="jawzHoldings">--</span></div>
+        <div class="pos-row"><span class="dim">Price</span><span id="jawzPrice">--</span></div>
+        <div class="pos-row"><span class="dim">Value</span><span id="jawzValue">--</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span id="jawzPnl">--</span></div>
       </div>
       <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
         <h4 style="color:#ff4444">$ORAMAMA — CLOSED ❌</h4>
@@ -1417,19 +1426,20 @@ const GIZMO_CA='8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump';
 const PUNCH_CA='NV2RYH954cTJ3ckFUpvfqaQXU4ARqqDH3562nFSpump';
 const BLOODNUT_CA='HBJUeugfgJ3zWYMMP4cULbZ9bjnZbb6WG9cBcWNxpump';
 const LOREGUY_CA='2DDooUpqhPbZMFL2d3a7MNGfuixzCvZLHxRNvqSYpump';
+const JAWZ_CA='GJmF68t5HXM1U1j2nE4Trvh7vH5XeXys7MW4UN5Bpump';
 const ORAMAMA_CA='B6CdHKLm1XRxxgTnK9cNvT3DA75hPc9WUjTkxVUupump';
 const TRENCH_CA='BzyKa1FGjs2EUpu3GGDibY4xdygn5evAiRboKmETpump';
 const WALLET='FXdMNyRo5CqfG3yRWCcNu163FpnSusdZSYecsB76GAkn';
 const RPC='https://mainnet.helius-rpc.com/?api-key=2de73660-14b8-412a-9ff2-8e6989c53266';
-const GIZMO_MINT=GIZMO_CA, PUNCH_MINT=PUNCH_CA, BLOODNUT_MINT=BLOODNUT_CA, LOREGUY_MINT=LOREGUY_CA, ORAMAMA_MINT=ORAMAMA_CA, TRENCH_MINT=TRENCH_CA;
+const GIZMO_MINT=GIZMO_CA, PUNCH_MINT=PUNCH_CA, BLOODNUT_MINT=BLOODNUT_CA, LOREGUY_MINT=LOREGUY_CA, JAWZ_MINT=JAWZ_CA, ORAMAMA_MINT=ORAMAMA_CA, TRENCH_MINT=TRENCH_CA;
 
 // Perps position config
 const PERP_SIZE=0, PERP_ENTRY=85.67; // SOL-PERP CLOSED
 const BTC_PERP_SIZE=0.0029, BTC_PERP_ENTRY=68389;
 const ETH_PERP_SIZE=0.075, ETH_PERP_ENTRY=1980;
 const USDC_MINT='EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
-let solPriceUsd=0,gizmoPriceUsd=0,punchPriceUsd=0,bloodnutPriceUsd=0,loreguyPriceUsd=0,oramamaPriceUsd=0,trenchPriceUsd=0,perpMarkPriceUsd=0,btcMarkPriceUsd=0,ethMarkPriceUsd=0,walletSol=0;
-let gizmoTokenBalance=0,punchTokenBalance=0,bloodnutTokenBalance=0,loreguyTokenBalance=0,oramamaTokenBalance=0,trenchTokenBalance=0,usdcBalance=0;
+let solPriceUsd=0,gizmoPriceUsd=0,punchPriceUsd=0,bloodnutPriceUsd=0,loreguyPriceUsd=0,jawzPriceUsd=0,perpMarkPriceUsd=0,btcMarkPriceUsd=0,ethMarkPriceUsd=0,walletSol=0;
+let gizmoTokenBalance=0,punchTokenBalance=0,bloodnutTokenBalance=0,loreguyTokenBalance=0,jawzTokenBalance=0,usdcBalance=0;
 
 async function fetchSolPrice(){
   // Try Jupiter price API first (most reliable, no rate limit)
@@ -1445,7 +1455,7 @@ async function fetchDexPrices(){
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${PUNCH_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0){punchPriceUsd=parseFloat(d.pairs[0].priceUsd||0);const pn=parseFloat(d.pairs[0].priceNative||0);if(pn>0&&punchPriceUsd>0&&solPriceUsd===0)solPriceUsd=punchPriceUsd/pn}}catch(e){console.error('PUNCH price error:',e)}
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${BLOODNUT_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)bloodnutPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('BLOODNUT price error:',e)}
   try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${LOREGUY_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)loreguyPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('LOREGUY price error:',e)}
-  // ORAMAMA & TRENCH closed — no price fetch needed
+  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${JAWZ_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0)jawzPriceUsd=parseFloat(d.pairs[0].priceUsd||0)}catch(e){console.error('JAWZ price error:',e)}
 }
 
 async function fetchPerpPrice(){
@@ -1462,7 +1472,7 @@ async function fetchWalletBalance(){
 }
 
 async function fetchTokenBalances(){
-  gizmoTokenBalance=0;punchTokenBalance=0;bloodnutTokenBalance=0;loreguyTokenBalance=0;oramamaTokenBalance=0;trenchTokenBalance=0;usdcBalance=0;
+  gizmoTokenBalance=0;punchTokenBalance=0;bloodnutTokenBalance=0;loreguyTokenBalance=0;jawzTokenBalance=0;usdcBalance=0;
   // Fetch from BOTH token programs (classic SPL + Token-2022)
   const programs=['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA','TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'];
   for(const prog of programs){
@@ -1481,8 +1491,7 @@ async function fetchTokenBalances(){
           if(mint===PUNCH_MINT) punchTokenBalance=amt;
           if(mint===BLOODNUT_MINT) bloodnutTokenBalance=amt;
           if(mint===LOREGUY_MINT) loreguyTokenBalance=amt;
-          if(mint===ORAMAMA_MINT) oramamaTokenBalance=amt;
-          if(mint===TRENCH_MINT) trenchTokenBalance=amt;
+          if(mint===JAWZ_MINT) jawzTokenBalance=amt;
           if(mint===USDC_MINT) usdcBalance=amt;
         }
       }
@@ -1537,9 +1546,16 @@ function updateUI(){
   const lpE=document.getElementById('loreguyPnl');
   if(lV>0){lpE.innerHTML=`<span style="color:${lPU>=0?'var(--teal)':'#ff4444'}">${lPU>=0?'+':''}${fmtNum(lPU,2)} USD (${lPP>=0?'+':''}${lPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${lPS>=0?'+':''}${lPS.toFixed(2)} SOL</span>`}else{lpE.textContent='--'}
 
-  // ORAMAMA & TRENCH — CLOSED, no live data needed
+  // JAWZ
+  const jV=jawzTokenBalance*jawzPriceUsd, jIU=3*solPriceUsd;
+  document.getElementById('jawzHoldings').textContent=jawzTokenBalance>0?fmtNum(jawzTokenBalance,0)+' tokens':'--';
+  document.getElementById('jawzPrice').textContent=jawzPriceUsd>0?'$'+jawzPriceUsd.toFixed(8):'--';
+  document.getElementById('jawzValue').textContent=jV>0?'$'+fmtNum(jV,2):'--';
+  const jPU=jV-jIU, jPS=solPriceUsd>0?(jV/solPriceUsd)-3:0, jPP=jIU>0?((jV/jIU)-1)*100:0;
+  const jpE=document.getElementById('jawzPnl');
+  if(jV>0){jpE.innerHTML=`<span style="color:${jPU>=0?'var(--teal)':'#ff4444'}">${jPU>=0?'+':''}${fmtNum(jPU,2)} USD (${jPP>=0?'+':''}${jPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${jPS>=0?'+':''}${jPS.toFixed(2)} SOL</span>`}else{jpE.textContent='--'}
 
-  const tMV=gV+pV+bV+lV, tMI=31*solPriceUsd, tPU=tMV-tMI, tPS=solPriceUsd>0?(tMV/solPriceUsd)-31:0;
+  const tMV=gV+pV+bV+lV+jV, tMI=34*solPriceUsd, tPU=tMV-tMI, tPS=solPriceUsd>0?(tMV/solPriceUsd)-31:0;
   document.getElementById('memeValue').textContent=tMV>0?'$'+fmtNum(tMV,2):'--';
   document.getElementById('memeValueSol').textContent=solPriceUsd>0&&tMV>0?(tMV/solPriceUsd).toFixed(2)+' SOL':'';
   const mpE=document.getElementById('memePnl');
@@ -1594,7 +1610,7 @@ function updateUI(){
   const liqEl=document.getElementById('perpLiqPrice');if(liqEl)liqEl.textContent=solLiq>0?'~$'+solLiq.toFixed(2):'--';
   const eqEl=document.getElementById('perpEquity');if(eqEl){eqEl.innerHTML=`<span style="color:var(--teal)">$${equity.toFixed(2)}</span>`}
 
-  const wV=walletSol*solPriceUsd, perpVal=btcPerpPnlUsd+ethPerpPnlUsd, total=wV+tMV+usdcBalance+86+perpVal;
+  const wV=walletSol*solPriceUsd, perpVal=btcPerpPnlUsd+ethPerpPnlUsd, total=wV+tMV+usdcBalance+86+perpVal; // tMV includes JAWZ
   const tvE=document.getElementById('totalPortValue');if(tvE)tvE.textContent=total>0?'$'+fmtNum(total,2):'--';
   const sbE=document.getElementById('solBalanceHud');if(sbE)sbE.textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
   const duE=document.getElementById('driftUsdc');if(duE)duE.textContent='$'+fmtNum(86+usdcBalance,2);
@@ -1620,7 +1636,8 @@ const tradeHistory=[
   {type:'TRADE',token:'$WINSTON',sol:5,status:'CLOSED ✅',date:'Feb 21',notes:'Bought 5 SOL → Sold 8.25 SOL. PnL: +3.25 SOL (+65%). Clean flip 🧹',pnl:'+3.25 SOL (+65%)'},
   {type:'BUY',token:'$LOREGUY',sol:1,status:'HOLDING',date:'Feb 21',notes:'6/9 framework score. 51h old, $32K mcap, graduated PumpSwap. TX: 467Ys...'},
   {type:'TRADE',token:'$ORAMAMA',sol:5,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 5 SOL @ 800K MC → Sold 2.53 SOL @ 413K MC. PnL: -2.47 SOL (-49%). SL hit.',pnl:'-2.47 SOL (-49%)'},
-  {type:'TRADE',token:'$TRENCH',sol:3,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 3 SOL @ 1.34M MC → Sold all for 2.15 SOL. PnL: -0.85 SOL (-28%). Auto-exit.',pnl:'-0.85 SOL (-28%)'}
+  {type:'TRADE',token:'$TRENCH',sol:3,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 3 SOL @ 1.34M MC → Sold all for 2.15 SOL. PnL: -0.85 SOL (-28%). Auto-exit.',pnl:'-0.85 SOL (-28%)'},
+  {type:'BUY',token:'$JAWZ 🦈',sol:3,status:'HOLDING',date:'Feb 22',notes:'6.5/9 framework. PVP game catalyst pending. 195K MC entry. TX: EJky...'}
 ];
 function updateStats(){
   const sp=solPriceUsd||0;
@@ -1639,7 +1656,7 @@ function updateStats(){
   document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
   document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(127+usdcBalance,2);
   document.getElementById('statsSolBal').textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
-  document.getElementById('statsWinRate').textContent='6 Active / 4 Closed (1W: +3.25 / -6.62 SOL)';
+  document.getElementById('statsWinRate').textContent='7 Active / 4 Closed (1W: +3.25 / -6.62 SOL)';
 
   // Positions
   const perps=[
@@ -1664,8 +1681,7 @@ function updateStats(){
     {name:'$PUNCH',bal:punchTokenBalance,price:punchPriceUsd,cost:13},
     {name:'$BLOODNUT',bal:bloodnutTokenBalance,price:bloodnutPriceUsd,cost:2},
     {name:'$LOREGUY',bal:loreguyTokenBalance,price:loreguyPriceUsd,cost:1},
-    {name:'$ORAMAMA',bal:oramamaTokenBalance,price:oramamaPriceUsd,cost:5},
-    {name:'$TRENCH',bal:trenchTokenBalance,price:trenchPriceUsd,cost:3}
+    {name:'$JAWZ',bal:jawzTokenBalance,price:jawzPriceUsd,cost:3}
   ];
   for(const t of tokens){
     if(!t.bal||t.bal<=0)continue;
