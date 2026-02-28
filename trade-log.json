@@ -1,0 +1,690 @@
+{
+  "trades": [
+    {
+      "type": "BUY",
+      "token": "TRENCH",
+      "entryMC": 1123348,
+      "sol": 3,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479574,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "KOL",
+      "entryMC": 162086,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479575,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "DARWIN",
+      "entryMC": 239832,
+      "sol": 2,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479575,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "TRENCH",
+      "entryMC": 1152114,
+      "sol": 3,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479575,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "KOL",
+      "entryMC": 186511,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479575,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "KOL",
+      "entryMC": 156170,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479576,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "TRENCH",
+      "entryMC": 1064370,
+      "sol": 3,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479576,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "GOLDENERA",
+      "entryMC": 83588,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479576,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "clod",
+      "score": 8,
+      "entryMC": 80583,
+      "sol": 0.5,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479595,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "clod",
+      "entryMC": 80583,
+      "sol": 0.5,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479596,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "CAPYSIM",
+      "score": 8,
+      "entryMC": 630969,
+      "sol": 2,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479596,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "CAPYSIM",
+      "entryMC": 630969,
+      "sol": 2,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479596,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "XMN",
+      "score": 7,
+      "entryMC": 1072949,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479596,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "XMN",
+      "entryMC": 1072949,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479596,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Bill",
+      "score": 7,
+      "entryMC": 341518,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479596,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Bill",
+      "entryMC": 341518,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479596,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "FUCKCANCER",
+      "score": 7,
+      "entryMC": 81015,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479619,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "FUCKCANCER",
+      "entryMC": 81015,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479620,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "CHUD",
+      "score": 7,
+      "entryMC": 87466,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479837,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "CHUD",
+      "entryMC": 87466,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479837,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Land",
+      "score": 8,
+      "entryMC": 346579,
+      "sol": 2,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479837,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Land",
+      "entryMC": 346579,
+      "sol": 2,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479837,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "pump",
+      "score": 7,
+      "entryMC": 101972,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479838,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "pump",
+      "entryMC": 101972,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479838,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Replacement",
+      "score": 7,
+      "entryMC": 92530,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479838,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Replacement",
+      "entryMC": 92530,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479838,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "broke",
+      "score": 7,
+      "entryMC": 196417,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479839,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "broke",
+      "entryMC": 196417,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479839,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "pump",
+      "score": 7,
+      "entryMC": 85588,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479840,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "pump",
+      "entryMC": 85588,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479840,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "XMN",
+      "score": 7,
+      "entryMC": 563543,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479840,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "XMN",
+      "entryMC": 563543,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479840,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "JACK",
+      "score": 7,
+      "entryMC": 70949,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479840,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "JACK",
+      "entryMC": 70949,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479840,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "AUTISM",
+      "score": 7,
+      "entryMC": 1243843,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479842,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "AUTISM",
+      "entryMC": 1243843,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479842,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "DUM",
+      "entryMC": 142677,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479842,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "JACK",
+      "score": 7,
+      "entryMC": 71759,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479843,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "JACK",
+      "entryMC": 71759,
+      "sol": 1,
+      "time": "2/27/2026, 12:51:19 AM",
+      "timestamp": 1772171479843,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Bourne",
+      "entryMC": 415071,
+      "sol": 1,
+      "time": "2/27/2026, 1:06:49 AM",
+      "timestamp": 1772172409908,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "JACK",
+      "score": 7,
+      "entryMC": 121388,
+      "sol": 1,
+      "time": "2/27/2026, 1:48:19 AM",
+      "timestamp": 1772174899989,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "JACK",
+      "entryMC": 121388,
+      "sol": 1,
+      "time": "2/27/2026, 1:48:19 AM",
+      "timestamp": 1772174899991,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "MACRO",
+      "entryMC": 2016837,
+      "sol": 1,
+      "time": "2/27/2026, 4:35:20 AM",
+      "timestamp": 1772184920592,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Pikachu",
+      "score": 9,
+      "entryMC": 363883,
+      "sol": 3,
+      "time": "2/27/2026, 5:16:50 AM",
+      "timestamp": 1772187410764,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Pikachu",
+      "entryMC": 363883,
+      "sol": 3,
+      "time": "2/27/2026, 5:16:50 AM",
+      "timestamp": 1772187410765,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Pippkin",
+      "entryMC": 2642040,
+      "sol": 1.5,
+      "time": "2/27/2026, 5:59:50 AM",
+      "timestamp": 1772189990933,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Pikachu",
+      "score": 9,
+      "entryMC": 456757,
+      "sol": 3,
+      "time": "2/27/2026, 6:23:21 AM",
+      "timestamp": 1772191401034,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Pikachu",
+      "entryMC": 456757,
+      "sol": 3,
+      "time": "2/27/2026, 6:23:21 AM",
+      "timestamp": 1772191401035,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "dippin",
+      "score": 9,
+      "entryMC": 420735,
+      "sol": 3,
+      "time": "2/27/2026, 6:44:51 AM",
+      "timestamp": 1772192691100,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "dippin",
+      "entryMC": 420735,
+      "sol": 3,
+      "time": "2/27/2026, 6:44:51 AM",
+      "timestamp": 1772192691101,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "BAO",
+      "score": 7,
+      "entryMC": 77251,
+      "sol": 1,
+      "time": "2/27/2026, 7:33:21 AM",
+      "timestamp": 1772195601284,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "BAO",
+      "entryMC": 77251,
+      "sol": 1,
+      "time": "2/27/2026, 7:33:21 AM",
+      "timestamp": 1772195601286,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "ROSCLAW",
+      "score": 7,
+      "entryMC": 375964,
+      "sol": 1,
+      "time": "2/27/2026, 8:38:21 AM",
+      "timestamp": 1772199501541,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "ROSCLAW",
+      "entryMC": 375964,
+      "sol": 1,
+      "time": "2/27/2026, 8:38:21 AM",
+      "timestamp": 1772199501544,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "ZOOKEEPER",
+      "score": 7,
+      "entryMC": 87486,
+      "sol": 1,
+      "time": "2/27/2026, 9:49:21 AM",
+      "timestamp": 1772203761809,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "ZOOKEEPER",
+      "entryMC": 87486,
+      "sol": 1,
+      "time": "2/27/2026, 9:49:21 AM",
+      "timestamp": 1772203761812,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Survive",
+      "score": 7,
+      "entryMC": 120800,
+      "sol": 1,
+      "time": "2/27/2026, 12:05:52 PM",
+      "timestamp": 1772211952358,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Survive",
+      "entryMC": 120800,
+      "sol": 1,
+      "time": "2/27/2026, 12:05:52 PM",
+      "timestamp": 1772211952361,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "TripleT",
+      "score": 7,
+      "entryMC": 625601,
+      "sol": 1,
+      "time": "2/27/2026, 12:14:22 PM",
+      "timestamp": 1772212462387,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "TripleT",
+      "entryMC": 625601,
+      "sol": 1,
+      "time": "2/27/2026, 12:14:22 PM",
+      "timestamp": 1772212462388,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Pippkin",
+      "score": 7,
+      "entryMC": 2547987,
+      "sol": 1,
+      "time": "2/27/2026, 12:57:52 PM",
+      "timestamp": 1772215072562,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Pippkin",
+      "entryMC": 2547987,
+      "sol": 1,
+      "time": "2/27/2026, 12:57:52 PM",
+      "timestamp": 1772215072564,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "NotDivided",
+      "entryMC": 369399,
+      "sol": 2,
+      "time": "2/27/2026, 6:07:13 PM",
+      "timestamp": 1772233633803,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Pinch",
+      "entryMC": 140473,
+      "sol": 2,
+      "time": "2/27/2026, 7:10:14 PM",
+      "timestamp": 1772237414104,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "BELLATOR",
+      "entryMC": 517089,
+      "sol": 3,
+      "time": "2/27/2026, 9:41:44 PM",
+      "timestamp": 1772246504340,
+      "status": "OPEN",
+      "date": "Feb 27"
+    },
+    {
+      "type": "BUY",
+      "token": "Hippobean",
+      "entryMC": 149116,
+      "sol": 2,
+      "time": "2/28/2026, 1:44:44 AM",
+      "timestamp": 1772261084714,
+      "status": "OPEN",
+      "date": "Feb 28"
+    }
+  ],
+  "lastLine": 52856
+}

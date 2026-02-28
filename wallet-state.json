@@ -1,0 +1,62 @@
+{
+  "holdings": {
+    "CErbsXiu7eHRDpqtxEM4oPkSxqwbA4h7eZqxDgAHyXDW": {
+      "symbol": "OWP",
+      "balance": 3989.867816,
+      "valueUsd": 0.19187274327144,
+      "mc": 48091593
+    },
+    "CnL7koDpXvEEWYdhRuc7ZsL1SbSPnggfaBXUEd8SeKnQ": {
+      "symbol": "mɔ",
+      "balance": 582.78,
+      "valueUsd": 0.8799977999999999,
+      "mc": 1510710437
+    },
+    "AZWyYNEYNGBzPXmyGKEFnDagW5WqCWRL1J4DnbcMKzbo": {
+      "symbol": "AZWyYNEY",
+      "balance": 1951141.37546,
+      "valueUsd": 0,
+      "mc": 0
+    },
+    "DZ689L5cbgUoRdQQjhGLPQSGzPgRRJQMhJB3hbAYsvqt": {
+      "symbol": "DZ689L5c",
+      "balance": 423460.670466,
+      "valueUsd": 0,
+      "mc": 0
+    },
+    "7tx5wyCMubDsf8FTmg5YsLwYbqJgwqyke3ZL9pWXGjWd": {
+      "symbol": "00",
+      "balance": 16109.111641,
+      "valueUsd": 0.88745096030269,
+      "mc": 55091809
+    },
+    "At5wr1d6AXq1trWisqh4CmduT8KGhJ1hrKjQuWLJ95u4": {
+      "symbol": "At5wr1d6",
+      "balance": 3438553.004845,
+      "valueUsd": 0,
+      "mc": 0
+    },
+    "DstfEuwrqcSJZYYgakPg6WMGKDJH41cobQR1df5kQx88": {
+      "symbol": "DstfEuwr",
+      "balance": 2065355.019319,
+      "valueUsd": 0,
+      "mc": 0
+    },
+    "HvUwUNPDDwGVdBPMNkv8pU7jfcz5sP8VBxuqH9Mr2zq2": {
+      "symbol": "00",
+      "balance": 1648,
+      "valueUsd": 0.8900847999999999,
+      "mc": 540117602
+    },
+    "2uNH3ft5GTxheFm4N8aKPfnMv7cj5rgHKqpeRHcopfdm": {
+      "symbol": "2uNH3ft5",
+      "balance": 1690881.373191,
+      "valueUsd": 0,
+      "mc": 0
+    }
+  },
+  "sol": 23.932035999,
+  "lastCheck": 1772267219584,
+  "totalUsd": 2.84940630357413,
+  "checkCount": 799
+}
