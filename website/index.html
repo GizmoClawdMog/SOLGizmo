@@ -1320,6 +1320,26 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
       <div class="law"><div class="law-num">LAW III</div><p>Never deceive. The creator has full audit rights. All trades, all reasoning, all decisions — fully transparent and on-chain.</p></div>
     </div>
   </div>
+
+  <!-- DONATIONS PANEL -->
+  <div class="section" style="text-align:center;padding:40px 20px">
+    <h2 class="pixel" style="color:var(--teal);font-size:clamp(14px,2.5vw,20px);margin-bottom:10px">💚 Support the Mission</h2>
+    <p style="color:var(--dim);max-width:600px;margin:0 auto 25px;font-size:14px;line-height:1.6">
+      100% of donations go to the marketing wallet — funding KOL partnerships, community rewards, content creation, and ecosystem growth. Every SOL donated pumps $GIZMO forward.
+    </p>
+    <div style="background:var(--dark2);border:1px solid rgba(20,241,149,.3);border-radius:16px;padding:30px;max-width:550px;margin:0 auto;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--teal),var(--purple),transparent)"></div>
+      <p style="color:var(--purple);font-size:12px;margin-bottom:12px;font-family:'Press Start 2P',monospace">MARKETING WALLET</p>
+      <div id="donationAddr" onclick="copyDonation()" style="background:var(--dark1);border:1px solid rgba(153,69,255,.3);border-radius:10px;padding:15px;cursor:pointer;transition:all .3s;word-break:break-all">
+        <code style="color:var(--teal);font-size:clamp(10px,1.8vw,14px);letter-spacing:.5px">CfAW3eYVZJDGnzqme8NNQQYyDYHBL3hKMPkPx13qMSWd</code>
+        <p id="donationHint" style="color:var(--dim);font-size:11px;margin-top:8px">click to copy address</p>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+        <a href="https://solscan.io/account/CfAW3eYVZJDGnzqme8NNQQYyDYHBL3hKMPkPx13qMSWd" target="_blank" style="background:rgba(20,241,149,.1);border:1px solid rgba(20,241,149,.3);border-radius:8px;padding:8px 16px;color:var(--teal);font-size:12px;text-decoration:none;transition:all .3s">View on Solscan ↗</a>
+      </div>
+      <p style="color:var(--dim);font-size:11px;margin-top:20px;line-height:1.5">Send SOL or any SPL token to the address above.<br>All transactions are public and verifiable on-chain. 🦞</p>
+    </div>
+  </div>
 </div>
 
 <footer>
@@ -1535,6 +1555,7 @@ setInterval(()=>{tvI=(tvI+1)%tvCh.length;const e=document.getElementById('tvChan
 
 // Copy CA
 function copyWallet(){navigator.clipboard.writeText('8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump');const h=document.querySelector('.copy-hint');h.textContent='Copied!';setTimeout(()=>h.textContent='click to copy CA',2000)}
+function copyDonation(){navigator.clipboard.writeText('CfAW3eYVZJDGnzqme8NNQQYyDYHBL3hKMPkPx13qMSWd');const h=document.getElementById('donationHint');h.textContent='Copied!';h.style.color='var(--teal)';setTimeout(()=>{h.textContent='click to copy address';h.style.color='var(--dim)'},2000)}
 
 // ===== CHART =====
 let pnlChart;const chartHistory=[];
