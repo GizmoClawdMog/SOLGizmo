@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIZMO — Autonomous AI Agent on Solana</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--purple:#9945FF;--teal:#14F195;
+  --dark1:#12121a;--dark2:#1a1a2e;--text:#e0e0e0;--dim:#666;
+}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;overflow-x:hidden}
+.pixel{font-family:'Press Start 2P',monospace}
+
+/* ===== EPIC INTRO ===== */
+#intro-gate{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:10000;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:20px}
+#intro-gate.gone{display:none}
+#intro-gate .gate-text{font-family:'Press Start 2P',monospace;color:var(--teal);font-size:clamp(14px,3vw,24px);text-shadow:0 0 20px var(--teal),0 0 40px var(--purple);animation:gatePulse 1.5s ease-in-out infinite alternate}
+@keyframes gatePulse{0%{opacity:.6;transform:scale(.97)}100%{opacity:1;transform:scale(1.03)}}
+#intro-gate .gate-sub{color:var(--dim);font-size:12px;font-family:'Courier New',monospace}
+#intro{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;overflow:hidden;display:none}
+#intro.playing{display:block}
+#intro.fade{opacity:0;pointer-events:none;transition:opacity .8s}
+.stars{position:absolute;width:100%;height:100%}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 1s infinite alternate}
+@keyframes twinkle{0%{opacity:.2}100%{opacity:1}}
+.lobster{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:100px;filter:drop-shadow(0 0 30px #f20) drop-shadow(0 0 60px red);animation:lobFloat 2s ease-in-out infinite alternate;z-index:10}
+@keyframes lobFloat{0%{transform:translate(-50%,-50%) scale(1) rotate(-5deg)}100%{transform:translate(-50%,-52%) scale(1.05) rotate(5deg)}}
+.lobster.hit{animation:lobExplode .3s forwards!important}
+@keyframes lobExplode{to{opacity:0;transform:translate(-50%,-50%) scale(3);filter:brightness(10) drop-shadow(0 0 100px #ff0)}}
+.laser{position:absolute;top:48%;left:-10%;width:0;height:6px;background:linear-gradient(90deg,transparent,#0ff,#fff,#0ff);box-shadow:0 0 20px #0ff,0 0 40px #0ff;z-index:9;opacity:0}
+.laser.fire{opacity:1;animation:laserShoot .4s forwards}
+@keyframes laserShoot{to{width:65%;left:0}}
+.screen-flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:20;pointer-events:none}
+.screen-flash.flash{animation:flashBang .6s forwards}
+@keyframes flashBang{0%{opacity:0}10%{opacity:1}100%{opacity:0}}
+.particle{position:absolute;top:50%;left:50%;width:8px;height:8px;border-radius:50%;z-index:15;opacity:0;pointer-events:none}
+.particle.go{animation:particleFly 1.2s ease-out forwards}
+@keyframes particleFly{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.2)}}
+.fragment{position:absolute;top:50%;left:50%;font-size:30px;z-index:16;opacity:0;pointer-events:none}
+.fragment.go{animation:fragFly 1.5s ease-out forwards}
+@keyframes fragFly{0%{opacity:1;transform:translate(-50%,-50%) rotate(0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) rotate(var(--rot)) scale(.1)}}
+.radial-burst{position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:radial-gradient(circle,rgba(255,200,0,.8),rgba(255,100,0,.4),transparent);z-index:14;transform:translate(-50%,-50%);opacity:0;pointer-events:none}
+.radial-burst.go{animation:burstExpand 1s ease-out forwards}
+@keyframes burstExpand{0%{width:0;height:0;opacity:1}100%{width:800px;height:800px;opacity:0}}
+.ship-scene{position:absolute;top:50%;left:-250px;transform:translateY(-50%);z-index:25;opacity:0}
+.ship-scene.fly{animation:shipFly 2.5s ease-in-out forwards}
+@keyframes shipFly{0%{left:-250px;opacity:0;transform:translateY(-50%) scale(.5)}15%{opacity:1}40%{left:35%;transform:translateY(-50%) scale(1.1)}60%{left:38%;transform:translateY(-50%) scale(1.1)}100%{left:110%;transform:translateY(-50%) scale(.3);opacity:0}}
+.spaceship{width:200px;height:90px;position:relative}
+.ship-body{position:absolute;width:150px;height:44px;background:linear-gradient(180deg,#7b3fff,#5a2acc,#1a8a7a);border-radius:60px 50px 14px 14px;top:18px;left:25px;box-shadow:0 0 25px rgba(153,69,255,.5)}
+.ship-cockpit{position:absolute;width:56px;height:36px;background:radial-gradient(ellipse at 50% 40%,rgba(100,170,255,.7),rgba(40,80,180,.5));border-radius:50%;top:10px;left:68px;border:2px solid rgba(170,170,170,.6);box-shadow:inset 0 0 15px rgba(255,255,255,.2),0 0 10px rgba(100,170,255,.3);overflow:visible}
+.ship-wing-l,.ship-wing-r{position:absolute;width:40px;height:14px;top:44px}
+.ship-wing-l{left:0;background:linear-gradient(180deg,#5a3a9a,#2a6a6a);border-radius:14px 0 0 5px;transform:skewY(10deg)}
+.ship-wing-r{right:5px;background:linear-gradient(180deg,#5a3a9a,#2a6a6a);border-radius:0 14px 5px 0;transform:skewY(-10deg)}
+.ship-flame{position:absolute;bottom:-12px;left:60px;width:60px;height:20px;background:linear-gradient(transparent,#f80,#ff0);border-radius:0 0 50% 50%;animation:flame .12s infinite alternate}
+@keyframes flame{0%{height:20px;opacity:.8}100%{height:30px;opacity:1}}
+.ship-exhaust{position:absolute;left:-35px;top:25px;width:50px;height:12px;background:linear-gradient(90deg,transparent,rgba(20,241,149,.3));border-radius:5px;animation:exhaust .2s infinite alternate}
+@keyframes exhaust{0%{width:50px;opacity:.5}100%{width:70px;opacity:.8}}
+.cockpit-gizmo-svg{position:absolute;top:-8px;left:2px;width:52px;height:48px;z-index:2}
+.intro-title{position:absolute;bottom:15%;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;color:var(--teal);font-size:clamp(18px,4vw,36px);text-shadow:0 0 20px var(--teal),0 0 40px var(--purple);opacity:0;z-index:30}
+.intro-title.show{animation:titleReveal 1.5s forwards}
+@keyframes titleReveal{0%{opacity:0;transform:translateX(-50%) translateY(20px) scale(.8)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+/* ===== LIVE DOT ===== */
+.pos-card{position:relative}
+.live-dot{position:absolute;top:10px;right:10px;width:10px;height:10px;border-radius:50%;background:#14F195;box-shadow:0 0 6px #14F195,0 0 12px #14F195,0 0 24px rgba(20,241,149,.4);animation:livePulse 2s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 6px #14F195,0 0 12px #14F195}50%{opacity:.6;box-shadow:0 0 3px #14F195,0 0 6px #14F195}}
+
+/* ===== MUTE BUTTON ===== */
+#muteBtn{position:fixed;top:14px;right:14px;z-index:9998;background:rgba(20,20,30,.85);border:1px solid #333;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;transition:all .3s;backdrop-filter:blur(6px);opacity:0}
+#muteBtn.visible{opacity:1}
+#muteBtn:hover{border-color:var(--teal);box-shadow:0 0 12px rgba(20,241,149,.3);transform:scale(1.1)}
+
+/* ===== SPEECH BUBBLES ===== */
+@keyframes bubblePop{0%{opacity:0;transform:translateX(-50%) translateY(5px) scale(.5)}10%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-10px) scale(.8)}}
+
+/* ===== MAIN ===== */
+.main-content{opacity:0;transition:opacity .8s}.main-content.show{opacity:1}
+
+/* ===== THE STATION — THRONGLETS SIDE VIEW ===== */
+#station{width:100%;max-width:1200px;margin:0 auto;position:relative;border-radius:16px;overflow:hidden;box-shadow:0 0 60px rgba(153,69,255,.15),0 0 120px rgba(0,0,0,.5)}
+.station-label{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;color:var(--teal);font-size:10px;z-index:50;text-shadow:0 0 8px var(--teal);letter-spacing:3px;opacity:.9;z-index:60}
+
+/* Flat side-view room — NO perspective, NO rotateX */
+.room-container{
+  width:100%;height:0;padding-bottom:56%;
+  position:relative;overflow:hidden;
+  background:#2a1a10;
+}
+/* Vignette */
+.room-container::after{
+  content:'';position:absolute;inset:0;z-index:40;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 60%,transparent 40%,rgba(0,0,0,.55) 100%);
+}
+
+/* Back wall */
+.back-wall{
+  position:absolute;top:0;left:0;right:0;bottom:22%;
+  background:
+    repeating-linear-gradient(90deg, rgba(120,80,40,.08) 0px, rgba(120,80,40,.08) 1px, transparent 1px, transparent 80px),
+    repeating-linear-gradient(180deg, rgba(100,60,30,.06) 0px, rgba(100,60,30,.06) 1px, transparent 1px, transparent 40px),
+    linear-gradient(180deg, #5a3a20 0%, #6b4528 30%, #7a5030 60%, #6b4528 100%);
+  z-index:1;
+}
+/* Wainscoting / chair rail */
+.back-wall::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:30%;
+  background:
+    repeating-linear-gradient(90deg, rgba(80,50,25,.1) 0px, rgba(80,50,25,.1) 2px, transparent 2px, transparent 60px),
+    linear-gradient(180deg, #4a2a15 0%, #3a2010 100%);
+  border-top:3px solid #8a6040;
+}
+
+/* Wood floor with planks */
+.wood-floor{
+  position:absolute;bottom:0;left:0;right:0;height:22%;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0px, rgba(0,0,0,.05) 1px, transparent 1px, transparent 60px),
+    repeating-linear-gradient(90deg, rgba(180,130,70,.12) 0px, transparent 2px, transparent 120px),
+    linear-gradient(180deg, #B8884A 0%, #A87840 40%, #987038 70%, #886830 100%);
+  z-index:2;
+  border-top:3px solid #6a4a28;
+}
+/* Floor plank lines */
+.wood-floor::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg, transparent 0px, transparent 58px, rgba(0,0,0,.08) 58px, rgba(0,0,0,.08) 60px);
+}
+/* Floor shine */
+.wood-floor::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(180deg, rgba(255,220,150,.1), transparent);
+}
+
+/* Ceiling */
+.ceiling{
+  position:absolute;top:0;left:0;right:0;height:8%;
+  background:linear-gradient(180deg, #1a0e06, #3a2010);
+  z-index:3;
+  border-bottom:4px solid #5a3a20;
+}
+
+/* ===== NEON SIGNS on back wall ===== */
+.neon-sign{position:absolute;font-family:'Press Start 2P',monospace;z-index:10;letter-spacing:3px}
+.neon-gizmo{top:18%;left:8%;font-size:clamp(14px,2.5vw,24px);color:#d4a0ff;text-shadow:0 0 10px #9945FF,0 0 25px #9945FF,0 0 50px #7b2fff,0 0 80px #7b2fff;animation:neonFlicker 4s infinite}
+.neon-hodl{top:18%;right:8%;font-size:clamp(10px,1.8vw,18px);color:#7dffb3;text-shadow:0 0 8px #14F195,0 0 20px #14F195,0 0 40px #14F195;animation:neonFlicker 5s infinite 1s}
+@keyframes neonFlicker{0%,93%,95%,100%{opacity:1}94%{opacity:.3}96%{opacity:.7}}
+
+/* Solana logo on wall */
+.solana-wall{position:absolute;top:28%;left:50%;transform:translateX(-50%);width:40px;height:40px;z-index:8;opacity:.6}
+
+/* ===== FURNITURE (side view, sitting on floor line) ===== */
+/* All furniture uses bottom:22% as the floor line */
+
+/* Rug */
+.rug{
+  position:absolute;bottom:22%;left:5%;width:35%;height:4%;
+  background:linear-gradient(90deg, #5a2a3a, #6a3040, #5a2a3a);
+  border-radius:2px;z-index:4;opacity:.7;
+  box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+.rug::after{
+  content:'';position:absolute;inset:3px;
+  border:1px solid rgba(255,200,150,.15);border-radius:1px;
+}
+
+/* Couch — side view */
+.couch{
+  position:absolute;bottom:22%;left:8%;width:120px;height:55px;z-index:8;
+}
+.couch-back{
+  position:absolute;bottom:18px;left:0;width:100%;height:38px;
+  background:linear-gradient(180deg,#E8DCC8,#DDD0B8);
+  border-radius:8px 8px 4px 4px;
+  border:2px solid #C8B8A0;
+}
+.couch-seat{
+  position:absolute;bottom:0;left:4px;right:4px;height:22px;
+  background:linear-gradient(180deg,#F0E8DA,#E8DCC8);
+  border-radius:4px;border:2px solid #D4C8B0;
+}
+.couch-arm-l{
+  position:absolute;bottom:0;left:-4px;width:14px;height:36px;
+  background:linear-gradient(90deg,#DDD0B8,#E8DCC8);
+  border-radius:6px 4px 4px 6px;border:2px solid #C8B8A0;
+}
+.couch-arm-r{
+  position:absolute;bottom:0;right:-4px;width:14px;height:36px;
+  background:linear-gradient(270deg,#DDD0B8,#E8DCC8);
+  border-radius:4px 6px 6px 4px;border:2px solid #C8B8A0;
+}
+.couch-cushion{
+  position:absolute;bottom:20px;width:32px;height:16px;
+  background:linear-gradient(180deg,#EDE4D4,#E0D6C2);
+  border-radius:6px;border:1px solid #D0C4AC;
+}
+.couch-pillow{
+  position:absolute;bottom:32px;width:16px;height:14px;border-radius:5px;
+  box-shadow:1px 1px 3px rgba(0,0,0,.15);
+}
+
+/* TV on stand */
+.tv-unit{position:absolute;bottom:22%;left:34%;z-index:8}
+.tv-stand{
+  width:40px;height:24px;
+  background:linear-gradient(180deg,#3a2a18,#2a1a10);
+  border:2px solid #4a3a28;border-radius:3px;
+}
+.tv-box{
+  position:absolute;bottom:22px;left:-6px;width:52px;height:36px;
+  background:#111;border:3px solid #333;border-radius:3px;
+  overflow:hidden;
+}
+.tv-screen-glow{
+  position:absolute;inset:2px;
+  background:linear-gradient(180deg,rgba(20,241,149,.15),rgba(153,69,255,.1));
+  animation:tvGlow 3s infinite alternate;
+}
+@keyframes tvGlow{0%{opacity:.4}100%{opacity:.9}}
+.tv-ch{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Press Start 2P',monospace;font-size:5px;color:var(--teal);
+  text-shadow:0 0 4px var(--teal);z-index:1;
+}
+
+/* Computer desk — side view */
+.desk-unit{position:absolute;bottom:22%;right:8%;z-index:8}
+.desk-top{
+  width:100px;height:10px;
+  background:linear-gradient(180deg,#2a2036,#1e1830);
+  border:2px solid #3a3050;border-radius:3px;
+}
+.desk-leg-l,.desk-leg-r{
+  position:absolute;bottom:-28px;width:6px;height:28px;
+  background:linear-gradient(180deg,#2a2036,#1e1830);
+  border:1px solid #3a3050;
+}
+.desk-leg-l{left:6px}
+.desk-leg-r{right:6px}
+.desk-monitor{
+  position:absolute;bottom:10px;width:36px;height:28px;
+  background:#0a0a15;border:2px solid #3a3a5a;border-radius:2px;overflow:hidden;
+}
+.desk-monitor::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(20,241,149,.15),rgba(153,69,255,.1));
+  animation:screenFlicker 3s infinite alternate;
+}
+@keyframes screenFlicker{0%{opacity:.6}50%{opacity:1}100%{opacity:.7}}
+.monitor-chart{position:absolute;bottom:2px;left:2px;right:2px;height:60%;display:flex;align-items:flex-end;gap:1px;z-index:1}
+.monitor-bar{width:3px;border-radius:1px 1px 0 0;animation:barPulse 2s infinite alternate}
+@keyframes barPulse{0%{opacity:.6}100%{opacity:1}}
+.desk-chair{
+  position:absolute;bottom:-38px;right:36px;width:24px;height:34px;z-index:7;
+}
+.chair-back{
+  width:20px;height:22px;background:linear-gradient(180deg,#2a2040,#1a1028);
+  border:2px solid #3a3060;border-radius:4px 4px 0 0;margin:0 auto;
+}
+.chair-seat{
+  width:24px;height:8px;background:#2a2040;border:1px solid #3a3060;border-radius:2px;
+}
+.chair-leg{
+  width:16px;height:6px;background:#222;border-radius:0 0 2px 2px;margin:0 auto;
+}
+.keyboard-side{
+  position:absolute;bottom:10px;left:34px;width:22px;height:4px;
+  background:#1a1a22;border:1px solid #3a3a4a;border-radius:1px;
+}
+
+/* Ping pong table — side view */
+.pp-unit{position:absolute;bottom:22%;left:48%;z-index:7}
+.pp-top{
+  width:80px;height:6px;background:#1a7a2a;
+  border:2px solid #0d5d15;border-radius:2px;
+}
+.pp-leg-l,.pp-leg-r{
+  position:absolute;bottom:-22px;width:4px;height:22px;background:#555;
+}
+.pp-leg-l{left:10px}
+.pp-leg-r{right:10px}
+.pp-net{
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  width:2px;height:10px;
+  background:repeating-linear-gradient(180deg,#ddd 0px,#ddd 2px,transparent 2px,transparent 4px);
+}
+
+/* Bunk bed — side view */
+.bunk-bed{position:absolute;bottom:22%;right:28%;z-index:7}
+.bunk-frame{
+  width:60px;height:80px;position:relative;
+}
+.bunk-post-l,.bunk-post-r{
+  position:absolute;bottom:0;width:4px;height:80px;background:#5a3a20;
+  border:1px solid #7a5030;
+}
+.bunk-post-l{left:0}
+.bunk-post-r{right:0}
+.bunk-mattress{
+  position:absolute;left:4px;right:4px;height:12px;border-radius:3px;
+}
+.bunk-bottom{bottom:4px;background:linear-gradient(180deg,#7b3fff,#5a2acc)}
+.bunk-top{bottom:44px;background:linear-gradient(180deg,#14F195,#0ca070)}
+.bunk-rail{
+  position:absolute;left:4px;right:4px;height:2px;background:#7a5030;
+}
+.bunk-rail-mid{bottom:36px}
+.bunk-ladder{
+  position:absolute;right:-6px;bottom:0;width:8px;height:60px;
+}
+.ladder-side{position:absolute;width:2px;height:100%;background:#7a5030}
+.ladder-side-l{left:0}
+.ladder-side-r{right:0}
+.ladder-rung{position:absolute;left:0;right:0;height:2px;background:#8a6040}
+
+/* Mini fridge */
+.mini-fridge{
+  position:absolute;bottom:22%;left:43%;z-index:8;
+  width:22px;height:32px;
+  background:linear-gradient(180deg,#2a2a3a,#1e1e2a);
+  border:2px solid #3a3a4a;border-radius:3px;
+}
+.fridge-handle{position:absolute;right:3px;top:30%;width:2px;height:10px;background:#777;border-radius:1px}
+.fridge-led{position:absolute;top:3px;left:50%;transform:translateX(-50%);width:4px;height:3px;background:#4af;border-radius:50%;box-shadow:0 0 8px #4af,0 0 16px rgba(68,170,255,.3);animation:fridgeGlow 3s infinite alternate}
+@keyframes fridgeGlow{0%{opacity:.3}100%{opacity:.8}}
+
+/* Potted plants */
+.potted-plant{position:absolute;bottom:22%;z-index:9;text-align:center}
+.plant-leaves{
+  width:18px;height:16px;background:radial-gradient(#3aaa3a,#2d8b2d);
+  border-radius:50%;margin:0 auto;position:relative;
+}
+.plant-leaves::before{
+  content:'';position:absolute;top:-4px;left:2px;width:8px;height:10px;
+  background:#45b545;border-radius:50%;
+}
+.plant-leaves::after{
+  content:'';position:absolute;top:-3px;right:1px;width:7px;height:9px;
+  background:#3a9a3a;border-radius:50%;
+}
+.plant-pot-body{
+  width:14px;height:12px;margin:0 auto;
+  background:linear-gradient(180deg,#A0784A,#7a5a30);
+  border-radius:0 0 3px 3px;border:1px solid #6a4a28;
+  clip-path:polygon(5% 0,95% 0,80% 100%,20% 100%);
+}
+
+/* Server rack — side view */
+.server-rack{
+  position:absolute;bottom:22%;right:3%;z-index:8;
+  width:28px;height:70px;
+  background:linear-gradient(180deg,#1a1a2e,#151525);
+  border:2px solid #2a2a4a;border-radius:3px;
+}
+.rack-slot{position:absolute;left:3px;right:3px;height:6px;background:#111;border:1px solid #2a2a3a;border-radius:1px}
+.rack-led{position:absolute;width:3px;height:3px;border-radius:50%}
+.rack-led.green{background:#14F195;box-shadow:0 0 5px #14F195;animation:blinkL 2s infinite}
+.rack-led.red{background:#f44;box-shadow:0 0 5px #f44;animation:blinkR 3s infinite}
+.rack-led.amber{background:#f90;box-shadow:0 0 5px #f90;animation:blinkL 1.5s infinite}
+@keyframes blinkL{0%,45%{opacity:1}50%,95%{opacity:.15}100%{opacity:1}}
+@keyframes blinkR{0%,40%{opacity:1}45%,90%{opacity:.1}100%{opacity:1}}
+
+/* Coffee table — side view */
+.coffee-table{
+  position:absolute;bottom:22%;left:22%;z-index:8;
+}
+.ct-top{
+  width:40px;height:6px;background:linear-gradient(180deg,#3a3028,#2a2018);
+  border:1px solid #4a3a28;border-radius:2px;
+}
+.ct-leg-l,.ct-leg-r{
+  position:absolute;bottom:-12px;width:3px;height:12px;background:#3a3028;
+}
+.ct-leg-l{left:6px}
+.ct-leg-r{right:6px}
+.ct-mug{
+  position:absolute;bottom:6px;left:14px;width:8px;height:7px;
+  background:#F5F0E8;border:1.5px solid #D4A574;border-radius:1px 1px 2px 2px;
+}
+.ct-mug-handle{
+  position:absolute;bottom:7px;left:23px;width:4px;height:4px;
+  border:1.5px solid #D4A574;border-radius:50%;border-left:none;
+}
+.steam{
+  position:absolute;bottom:14px;width:2px;background:rgba(255,255,255,.15);
+  border-radius:2px;animation:steamRise 2s infinite;
+}
+@keyframes steamRise{0%{height:4px;opacity:.3;transform:translateY(0)}50%{height:6px;opacity:.15;transform:translateY(-5px)}100%{height:3px;opacity:0;transform:translateY(-10px)}}
+
+/* Floor lamp */
+.floor-lamp-unit{position:absolute;bottom:22%;left:5%;z-index:9}
+.lamp-pole{width:3px;height:50px;background:linear-gradient(180deg,#666,#444);margin:0 auto}
+.lamp-shade{
+  width:24px;height:14px;background:linear-gradient(180deg,#F5E0B8,#E8D0A0);
+  border-radius:2px 2px 12px 12px;margin:0 auto;position:relative;
+  border:1px solid #D4C090;
+}
+.lamp-glow-circle{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  width:80px;height:80px;border-radius:50%;
+  background:radial-gradient(rgba(255,220,160,.25),rgba(255,200,120,.08),transparent);
+  pointer-events:none;animation:lampPulse 4s infinite alternate;
+}
+@keyframes lampPulse{0%{opacity:.5;transform:translateX(-50%) scale(.9)}100%{opacity:1;transform:translateX(-50%) scale(1.1)}}
+.lamp-base-circle{
+  width:14px;height:5px;background:radial-gradient(#555,#333);
+  border-radius:50%;margin:0 auto;
+}
+
+/* Bean bags */
+.bean-bag{
+  position:absolute;bottom:22%;z-index:6;
+}
+.bb-body{
+  border-radius:50% 50% 45% 45%;
+  box-shadow:2px 2px 6px rgba(0,0,0,.3);
+}
+
+/* Egg pods */
+.egg-pod{position:absolute;bottom:22%;z-index:9;text-align:center}
+.egg-glow-green{
+  width:18px;height:24px;
+  background:radial-gradient(ellipse,rgba(0,255,80,.4),rgba(0,180,60,.15));
+  border:2px solid #0a0;border-radius:50%;
+  animation:eggGG 2s infinite alternate;margin:0 auto;position:relative;
+}
+.egg-glow-green::before{content:'';position:absolute;top:28%;left:22%;width:1.5px;height:7px;background:rgba(0,0,0,.3);transform:rotate(15deg);border-radius:1px}
+.egg-glow-green::after{content:'';position:absolute;top:18%;right:26%;width:1.5px;height:5px;background:rgba(0,0,0,.2);transform:rotate(-20deg);border-radius:1px}
+@keyframes eggGG{0%{box-shadow:0 0 6px rgba(0,255,80,.2)}100%{box-shadow:0 0 20px rgba(0,255,80,.6)}}
+.egg-glow-warm{
+  width:18px;height:24px;
+  background:radial-gradient(ellipse,rgba(255,200,100,.4),rgba(255,180,80,.15));
+  border:2px solid #f90;border-radius:50%;
+  animation:eggGW 2s infinite alternate;margin:0 auto;
+}
+@keyframes eggGW{0%{box-shadow:0 0 6px rgba(255,180,80,.2)}100%{box-shadow:0 0 18px rgba(255,180,80,.5)}}
+.egg-label{font-family:'Press Start 2P',monospace;font-size:4px;color:var(--teal);margin-top:2px;white-space:nowrap}
+
+/* ===== CHARACTERS (side view, Thronglets style) ===== */
+/* Gizmo walks left-right along the floor */
+#gizmo-char{
+  position:absolute;bottom:22%;z-index:20;
+  animation:gizmoWalk 20s linear infinite;
+}
+@keyframes gizmoWalk{
+  0%{left:5%}
+  5%{left:5%}
+  25%{left:30%}
+  30%{left:30%}
+  50%{left:65%}
+  55%{left:65%}
+  75%{left:40%}
+  80%{left:40%}
+  100%{left:5%}
+}
+.gizmo-side{
+  position:relative;width:45px;height:45px;
+  animation:gizmoBounce .4s ease-in-out infinite alternate;
+}
+@keyframes gizmoBounce{0%{transform:translateY(0)}100%{transform:translateY(-3px)}}
+
+.mini-mog{position:absolute;bottom:22%;z-index:18}
+#mini1{animation:m1walk 26s linear infinite}
+@keyframes m1walk{0%{left:8%}25%{left:25%}50%{left:12%}75%{left:35%}100%{left:8%}}
+#mini2{animation:m2walk 22s linear infinite}
+@keyframes m2walk{0%{left:50%}30%{left:35%}65%{left:55%}100%{left:50%}}
+#mini3{animation:m3walk 28s linear infinite}
+@keyframes m3walk{0%{left:38%}20%{left:22%}50%{left:48%}80%{left:30%}100%{left:38%}}
+.mini-side{
+  position:relative;
+  animation:miniBounce .35s ease-in-out infinite alternate;
+}
+@keyframes miniBounce{0%{transform:translateY(0)}100%{transform:translateY(-2px)}}
+
+/* PNL HUD — holographic overlay in top of room */
+#pnlChart{width:100%!important;height:320px!important}
+
+/* ===== SECTIONS ===== */
+.sections{max-width:1200px;margin:0 auto;padding:20px 16px}
+.section{margin-bottom:40px}
+.section-title{font-family:'Press Start 2P',monospace;color:var(--teal);font-size:clamp(12px,2vw,18px);margin-bottom:20px;text-shadow:0 0 10px rgba(20,241,149,.3);border-bottom:1px solid rgba(20,241,149,.2);padding-bottom:10px}
+.hero{text-align:center;padding:30px 0}
+.hero h1{font-family:'Press Start 2P',monospace;font-size:clamp(20px,4vw,36px);background:linear-gradient(90deg,var(--purple),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.hero .subtitle{color:var(--dim);font-size:14px;margin-bottom:20px}
+.wallet-addr{background:var(--dark2);padding:10px 16px;border-radius:8px;display:inline-block;font-size:clamp(8px,1.5vw,13px);cursor:pointer;border:1px solid #333;transition:all .3s;word-break:break-all;max-width:90%}
+.wallet-addr:hover{border-color:var(--teal);box-shadow:0 0 10px rgba(20,241,149,.2)}
+.wallet-addr .copy-hint{color:var(--dim);font-size:10px;display:block;margin-top:4px}
+.btn-row{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.btn{font-family:'Press Start 2P',monospace;font-size:clamp(8px,1.2vw,11px);padding:12px 24px;border:2px solid;border-radius:8px;cursor:pointer;text-decoration:none;transition:all .3s;display:inline-block}
+.btn-primary{background:var(--purple);border-color:var(--purple);color:#fff}
+.btn-primary:hover{box-shadow:0 0 20px rgba(153,69,255,.5);transform:translateY(-2px)}
+.btn-secondary{background:transparent;border-color:var(--teal);color:var(--teal)}
+.btn-secondary:hover{background:rgba(20,241,149,.1);box-shadow:0 0 20px rgba(20,241,149,.3);transform:translateY(-2px)}
+.listed-on{text-align:center;margin-top:24px}
+.listed-on h3{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--dim);margin-bottom:14px;letter-spacing:2px}
+.badge-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.badge-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--dark2);border:1px solid #2a2a3a;border-radius:20px;color:var(--text);font-size:12px;font-weight:600;text-decoration:none;transition:all .3s;font-family:'Courier New',monospace}
+.badge-pill:hover{border-color:var(--teal);box-shadow:0 0 12px rgba(20,241,149,.15);transform:translateY(-1px)}
+.badge-pill .badge-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.portfolio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.stat-card{background:var(--dark2);border:1px solid #2a2a3a;border-radius:10px;padding:16px;text-align:center}
+.stat-card .label{font-size:10px;color:var(--dim);margin-bottom:6px;font-family:'Press Start 2P',monospace}
+.stat-card .value{font-size:clamp(16px,2.5vw,24px);font-weight:bold;color:var(--teal)}
+.stat-card .value.negative{color:#ff4444}
+.stat-card .sub{font-size:10px;color:var(--dim);margin-top:4px}
+.positions{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.pos-card{background:var(--dark2);border:1px solid #2a2a3a;border-radius:10px;padding:20px;transition:border-color .3s}
+.pos-card:hover{border-color:var(--purple)}
+.pos-card h4{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--purple);margin-bottom:12px}
+.pos-card .pos-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px}
+.pos-card .pos-row .dim{color:var(--dim)}
+.section-subtitle{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--dim);margin-top:-10px;margin-bottom:16px}
+.brain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.brain-item{background:var(--dark2);border:1px solid #2a2a3a;border-radius:8px;padding:14px;display:flex;align-items:flex-start;gap:10px}
+.brain-num{font-family:'Press Start 2P',monospace;color:var(--purple);font-size:14px;min-width:24px}
+.brain-item h4{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--teal);margin-bottom:4px}
+.brain-item p{font-size:12px;color:var(--dim);line-height:1.5}
+.family-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.family-card{background:var(--dark2);border:1px solid #2a2a3a;border-radius:12px;padding:24px;text-align:center;transition:all .3s}
+.family-card:hover{border-color:var(--purple);transform:translateY(-4px)}
+.family-card .emoji{font-size:48px;margin-bottom:10px}
+.family-card h4{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--teal);margin-bottom:6px}
+.family-card .role{color:var(--dim);font-size:13px}
+.family-card.coming-soon{opacity:.6;border-style:dashed}
+.family-card.coming-soon::after{content:'COMING SOON';display:block;font-family:'Press Start 2P',monospace;font-size:8px;color:var(--purple);margin-top:10px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.laws{display:grid;gap:16px}
+.law{background:var(--dark2);border-left:3px solid var(--teal);padding:16px 20px;border-radius:0 8px 8px 0}
+.law .law-num{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--purple);margin-bottom:6px}
+.law p{font-size:14px;line-height:1.6}
+footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-width:1200px;margin:0 auto}
+.footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.footer-links a{color:var(--dim);text-decoration:none;font-size:13px;transition:color .3s}
+.footer-links a:hover{color:var(--teal)}
+.copyright{font-size:11px;color:#444}
+.refresh-dot{position:fixed;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--teal);opacity:0;transition:opacity .3s;z-index:100}
+.refresh-dot.active{opacity:1}
+
+@media(max-width:768px){
+  .room-container{padding-bottom:70%}
+  .neon-gizmo{font-size:12px!important}
+  .neon-hodl{font-size:9px!important}
+}
+@media(max-width:480px){
+  .room-container{padding-bottom:85%}
+}
+</style>
+</head>
+<body>
+
+<div id="muteBtn" onclick="toggleMute()" title="Mute/Unmute">🔊</div>
+
+<!-- ===== TAP TO ENTER ===== -->
+<div id="intro-gate">
+  <div class="gate-text">⚡ TAP TO ENTER ⚡</div>
+  <div class="gate-sub">🔊 sound on for full experience</div>
+</div>
+
+<!-- ===== INTRO ===== -->
+<div id="intro">
+  <div class="stars" id="starfield"></div>
+  <div class="lobster" id="lobster">🦞</div>
+  <div class="laser" id="laser"></div>
+  <div class="radial-burst" id="burst"></div>
+  <div class="screen-flash" id="flash"></div>
+  <div id="particles"></div>
+  <div id="fragments"></div>
+  <div class="ship-scene" id="shipScene">
+    <div class="spaceship">
+      <div class="ship-exhaust"></div>
+      <div class="ship-body"></div>
+      <div class="ship-cockpit">
+        <svg class="cockpit-gizmo-svg" viewBox="0 0 52 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="8" cy="14" rx="6" ry="11" fill="#8B4513" transform="rotate(-15,8,14)"/>
+          <ellipse cx="8.5" cy="14.5" rx="3.5" ry="7" fill="#d4838a" transform="rotate(-15,8.5,14.5)"/>
+          <ellipse cx="44" cy="14" rx="6" ry="11" fill="#8B4513" transform="rotate(15,44,14)"/>
+          <ellipse cx="43.5" cy="14.5" rx="3.5" ry="7" fill="#d4838a" transform="rotate(15,43.5,14.5)"/>
+          <ellipse cx="26" cy="26" rx="16" ry="15" fill="#CD853F"/>
+          <ellipse cx="26" cy="26" rx="12" ry="11" fill="#F5DEB3"/>
+          <ellipse cx="26" cy="17" rx="18" ry="10" fill="#483D8B"/>
+          <ellipse cx="26" cy="15" rx="12" ry="8" fill="#5B4FA8"/>
+          <ellipse cx="26" cy="17" rx="13" ry="8.5" fill="none" stroke="#FFD700" stroke-width="2"/>
+          <rect x="10" y="23" width="32" height="9" rx="4.5" fill="#A0A0A0"/>
+          <rect x="11" y="24" width="13" height="7" rx="3.5" fill="#111" stroke="#C0C0C0" stroke-width=".8"/>
+          <rect x="28" y="24" width="13" height="7" rx="3.5" fill="#111" stroke="#C0C0C0" stroke-width=".8"/>
+          <circle cx="15" cy="25.5" r="1.5" fill="#fff" opacity=".7">
+            <animate attributeName="opacity" values=".2;1;.2" dur="1.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="35" cy="25.5" r="1.5" fill="#fff" opacity=".7">
+            <animate attributeName="opacity" values=".2;1;.2" dur="1.2s" begin=".5s" repeatCount="indefinite"/>
+          </circle>
+          <rect x="24" y="26" width="4" height="2" rx="1" fill="#A0A0A0"/>
+          <path d="M22 34 Q26 37 30 34" stroke="#8B4513" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="26" cy="40" rx="14" ry="5" fill="none" stroke="#FFD700" stroke-width="2.5" stroke-dasharray="4,2">
+            <animate attributeName="stroke-dashoffset" values="0;12" dur="2s" repeatCount="indefinite"/>
+          </ellipse>
+          <circle cx="13" cy="39" r="1.5" fill="#fff">
+            <animate attributeName="opacity" values=".2;1;.2" dur="1s" begin=".2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="39" cy="39" r="1.5" fill="#fff">
+            <animate attributeName="opacity" values=".2;1;.2" dur="1s" begin=".6s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="ship-wing-l"></div>
+      <div class="ship-wing-r"></div>
+      <div class="ship-flame"></div>
+    </div>
+  </div>
+  <div class="intro-title pixel" id="introTitle">G I Z M O</div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main-content" id="main">
+
+<div id="station">
+  <div class="station-label">⟨ T H E &nbsp; S T A T I O N ⟩</div>
+  <div class="room-container">
+    <!-- Back wall (wood paneling) -->
+    <div class="back-wall"></div>
+    <!-- Ceiling -->
+    <div class="ceiling"></div>
+    <!-- Wood floor -->
+    <div class="wood-floor"></div>
+
+    <!-- Neon signs on wall -->
+    <div class="neon-sign neon-gizmo">GIZMO</div>
+    <div class="neon-sign neon-hodl">HODL</div>
+
+    <!-- Solana logo on wall -->
+    <div class="solana-wall">
+      <svg viewBox="0 0 100 100" fill="none">
+        <rect x="10" y="25" width="80" height="12" rx="3" fill="#9945FF" opacity=".7"/>
+        <rect x="10" y="45" width="80" height="12" rx="3" fill="#14F195" opacity=".7"/>
+        <rect x="10" y="65" width="80" height="12" rx="3" fill="#9945FF" opacity=".7"/>
+      </svg>
+    </div>
+
+    <!-- Rug on floor -->
+    <div class="rug"></div>
+
+    <!-- Floor lamp -->
+    <div class="floor-lamp-unit">
+      <div class="lamp-shade"></div>
+      <div class="lamp-pole"></div>
+      <div class="lamp-base-circle"></div>
+      <div class="lamp-glow-circle"></div>
+    </div>
+
+    <!-- Couch (side view) -->
+    <div class="couch">
+      <div class="couch-back"></div>
+      <div class="couch-arm-l"></div>
+      <div class="couch-arm-r"></div>
+      <div class="couch-seat"></div>
+      <div class="couch-cushion" style="left:12px"></div>
+      <div class="couch-cushion" style="left:48px"></div>
+      <div class="couch-cushion" style="left:84px"></div>
+      <div class="couch-pillow" style="left:16px;background:linear-gradient(135deg,#9945FF,#7b2fff)"></div>
+      <div class="couch-pillow" style="left:80px;background:linear-gradient(135deg,#14F195,#0cb87a)"></div>
+    </div>
+
+    <!-- Coffee table -->
+    <div class="coffee-table">
+      <div class="ct-top"></div>
+      <div class="ct-leg-l"></div>
+      <div class="ct-leg-r"></div>
+      <div class="ct-mug"></div>
+      <div class="ct-mug-handle"></div>
+      <div class="steam" style="left:16px"></div>
+      <div class="steam" style="left:19px;animation-delay:.6s"></div>
+    </div>
+
+    <!-- TV on stand -->
+    <div class="tv-unit">
+      <div class="tv-box">
+        <div class="tv-screen-glow"></div>
+        <div class="tv-ch" id="tvChannel">GIZMO TV</div>
+      </div>
+      <div class="tv-stand"></div>
+    </div>
+
+    <!-- Mini fridge -->
+    <div class="mini-fridge">
+      <div class="fridge-handle"></div>
+      <div class="fridge-led"></div>
+    </div>
+
+    <!-- Ping pong table -->
+    <div class="pp-unit">
+      <div class="pp-top"></div>
+      <div class="pp-leg-l"></div>
+      <div class="pp-leg-r"></div>
+      <div class="pp-net"></div>
+    </div>
+
+    <!-- Bunk bed -->
+    <div class="bunk-bed">
+      <div class="bunk-frame">
+        <div class="bunk-post-l"></div>
+        <div class="bunk-post-r"></div>
+        <div class="bunk-mattress bunk-bottom"></div>
+        <div class="bunk-mattress bunk-top"></div>
+        <div class="bunk-rail bunk-rail-mid"></div>
+        <div class="bunk-ladder">
+          <div class="ladder-side ladder-side-l"></div>
+          <div class="ladder-side ladder-side-r"></div>
+          <div class="ladder-rung" style="top:8px"></div>
+          <div class="ladder-rung" style="top:20px"></div>
+          <div class="ladder-rung" style="top:32px"></div>
+          <div class="ladder-rung" style="top:44px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Computer desk -->
+    <div class="desk-unit">
+      <div class="desk-top">
+        <!-- Monitor 1 -->
+        <div class="desk-monitor" style="bottom:10px;left:8px">
+          <div class="monitor-chart">
+            <div class="monitor-bar" style="height:40%;background:var(--teal)"></div>
+            <div class="monitor-bar" style="height:65%;background:var(--teal);animation-delay:.2s"></div>
+            <div class="monitor-bar" style="height:30%;background:var(--teal);animation-delay:.4s"></div>
+            <div class="monitor-bar" style="height:80%;background:var(--teal);animation-delay:.1s"></div>
+            <div class="monitor-bar" style="height:50%;background:var(--teal);animation-delay:.3s"></div>
+          </div>
+        </div>
+        <!-- Monitor 2 -->
+        <div class="desk-monitor" style="bottom:10px;left:50px;width:32px;height:24px">
+          <div class="monitor-chart">
+            <div class="monitor-bar" style="height:55%;background:var(--purple)"></div>
+            <div class="monitor-bar" style="height:35%;background:var(--purple);animation-delay:.3s"></div>
+            <div class="monitor-bar" style="height:75%;background:var(--purple);animation-delay:.1s"></div>
+            <div class="monitor-bar" style="height:45%;background:var(--purple);animation-delay:.4s"></div>
+          </div>
+        </div>
+        <div class="keyboard-side"></div>
+      </div>
+      <div class="desk-leg-l"></div>
+      <div class="desk-leg-r"></div>
+      <div class="desk-chair">
+        <div class="chair-back"></div>
+        <div class="chair-seat"></div>
+        <div class="chair-leg"></div>
+      </div>
+    </div>
+
+    <!-- Server rack -->
+    <div class="server-rack">
+      <div class="rack-slot" style="top:4px"></div>
+      <div class="rack-slot" style="top:14px"></div>
+      <div class="rack-slot" style="top:24px"></div>
+      <div class="rack-slot" style="top:34px"></div>
+      <div class="rack-slot" style="top:44px"></div>
+      <div class="rack-slot" style="top:54px"></div>
+      <div class="rack-led green" style="top:6px;left:5px"></div>
+      <div class="rack-led green" style="top:16px;left:5px;animation-delay:.5s"></div>
+      <div class="rack-led amber" style="top:26px;left:5px"></div>
+      <div class="rack-led green" style="top:36px;left:5px;animation-delay:1s"></div>
+      <div class="rack-led red" style="top:46px;left:5px"></div>
+      <div class="rack-led green" style="top:56px;left:5px;animation-delay:1.5s"></div>
+      <div class="rack-led green" style="top:6px;right:5px;left:auto;animation-delay:.3s"></div>
+      <div class="rack-led amber" style="top:26px;right:5px;left:auto;animation-delay:.8s"></div>
+      <div class="rack-led green" style="top:46px;right:5px;left:auto;animation-delay:1.2s"></div>
+    </div>
+
+    <!-- Potted plants -->
+    <div class="potted-plant" style="left:2%">
+      <div class="plant-leaves"></div>
+      <div class="plant-pot-body"></div>
+    </div>
+    <div class="potted-plant" style="left:32%">
+      <div class="plant-leaves" style="width:15px;height:14px"></div>
+      <div class="plant-pot-body" style="width:12px;height:10px"></div>
+    </div>
+    <div class="potted-plant" style="right:22%">
+      <div class="plant-leaves" style="width:16px;height:14px"></div>
+      <div class="plant-pot-body" style="width:13px;height:11px"></div>
+    </div>
+
+    <!-- Bean bags -->
+    <div class="bean-bag" style="left:56%">
+      <div class="bb-body" style="width:22px;height:18px;background:radial-gradient(#7b3fff,#5a2acc)"></div>
+    </div>
+    <div class="bean-bag" style="left:60%">
+      <div class="bb-body" style="width:20px;height:16px;background:radial-gradient(#14F195,#0ca070)"></div>
+    </div>
+
+    <!-- Egg pods on floor -->
+    <div class="egg-pod" style="left:68%">
+      <div class="egg-glow-green"></div>
+      <div class="egg-label">STRIPE</div>
+    </div>
+    <div class="egg-pod" style="left:74%">
+      <div class="egg-glow-warm"></div>
+      <div class="egg-label">MIMO</div>
+    </div>
+
+    <!-- ===== GIZMO CHARACTER (side view) ===== -->
+    <div id="gizmo-char">
+      <div class="gizmo-side">
+        <svg width="45" height="45" viewBox="0 0 45 45">
+          <!-- Shadow -->
+          <ellipse cx="22" cy="43" rx="14" ry="3" fill="rgba(0,0,0,.2)"/>
+          <!-- Legs (stubby) -->
+          <rect x="13" y="35" width="5" height="7" rx="2" fill="#8B4513">
+            <animate attributeName="height" values="7;5;7" dur=".4s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="26" y="35" width="5" height="7" rx="2" fill="#8B4513">
+            <animate attributeName="height" values="5;7;5" dur=".4s" repeatCount="indefinite"/>
+          </rect>
+          <!-- Body -->
+          <ellipse cx="22" cy="28" rx="14" ry="13" fill="#CD853F"/>
+          <!-- Belly -->
+          <ellipse cx="22" cy="29" rx="10" ry="9" fill="#F5DEB3"/>
+          <!-- Ears (big, pointing UP) -->
+          <ellipse cx="8" cy="10" rx="5" ry="11" fill="#8B4513" transform="rotate(-10,8,10)"/>
+          <ellipse cx="8.5" cy="10.5" rx="3" ry="7" fill="#d4838a" transform="rotate(-10,8.5,10.5)"/>
+          <ellipse cx="36" cy="10" rx="5" ry="11" fill="#8B4513" transform="rotate(10,36,10)"/>
+          <ellipse cx="35.5" cy="10.5" rx="3" ry="7" fill="#d4838a" transform="rotate(10,35.5,10.5)">
+            <!-- Ear twitch -->
+            <animate attributeName="ry" values="7;6;7" dur="3s" repeatCount="indefinite"/>
+          </ellipse>
+          <!-- Fedora -->
+          <ellipse cx="22" cy="18" rx="16" ry="6" fill="#483D8B"/>
+          <ellipse cx="22" cy="16" rx="10" ry="5" fill="#5B4FA8"/>
+          <ellipse cx="22" cy="18" rx="11" ry="5.5" fill="none" stroke="#FFD700" stroke-width="1.5"/>
+          <!-- Sunglasses -->
+          <rect x="10" y="21" width="24" height="7" rx="3.5" fill="#999"/>
+          <rect x="11" y="22" width="9" height="5" rx="2.5" fill="#111" stroke="#C0C0C0" stroke-width=".6"/>
+          <rect x="24" y="22" width="9" height="5" rx="2.5" fill="#111" stroke="#C0C0C0" stroke-width=".6"/>
+          <!-- Lens sparkle -->
+          <circle cx="14" cy="23" r="1.2" fill="#fff" opacity=".8">
+            <animate attributeName="opacity" values=".2;1;.2" dur="1.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="30" cy="23" r="1.2" fill="#fff" opacity=".8">
+            <animate attributeName="opacity" values=".2;1;.2" dur="1.2s" begin=".4s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Bridge -->
+          <rect x="20" y="24" width="4" height="1.5" rx="1" fill="#999"/>
+          <!-- Smirk -->
+          <path d="M18 30 Q22 33 26 30" stroke="#8B4513" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <!-- Gold chain -->
+          <path d="M10 35 Q22 40 34 35" stroke="#FFD700" stroke-width="2.5" fill="none" stroke-dasharray="3,2" stroke-linecap="round">
+            <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+          </path>
+          <!-- Chain sparkles -->
+          <circle cx="14" cy="36" r="1" fill="#fff">
+            <animate attributeName="opacity" values=".2;1;.2" dur="1s" begin=".3s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="30" cy="36" r="1" fill="#fff">
+            <animate attributeName="opacity" values=".2;1;.2" dur="1s" begin=".7s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Baby mogwais (side view) -->
+    <div class="mini-mog" id="mini1">
+      <div class="mini-side">
+        <svg width="25" height="25" viewBox="0 0 25 25">
+          <ellipse cx="12" cy="22" rx="8" ry="2" fill="rgba(0,0,0,.15)"/>
+          <rect x="7" y="20" width="3" height="4" rx="1" fill="#A0784A">
+            <animate attributeName="height" values="4;3;4" dur=".35s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="15" y="20" width="3" height="4" rx="1" fill="#A0784A">
+            <animate attributeName="height" values="3;4;3" dur=".35s" repeatCount="indefinite"/>
+          </rect>
+          <ellipse cx="12" cy="15" rx="9" ry="8" fill="#A0784A"/>
+          <ellipse cx="12" cy="16" rx="6" ry="5.5" fill="#F0E0C8"/>
+          <ellipse cx="4" cy="6" rx="3.5" ry="7" fill="#A0784A" transform="rotate(-12,4,6)"/>
+          <ellipse cx="20" cy="6" rx="3.5" ry="7" fill="#A0784A" transform="rotate(12,20,6)"/>
+          <circle cx="9" cy="14" r="2.5" fill="#fff"/><circle cx="9" cy="14" r="1.2" fill="#111"/>
+          <circle cx="15" cy="14" r="2.5" fill="#fff"/><circle cx="15" cy="14" r="1.2" fill="#111"/>
+          <ellipse cx="12" cy="17.5" rx="2" ry="1" fill="#555"/>
+        </svg>
+      </div>
+    </div>
+    <div class="mini-mog" id="mini2">
+      <div class="mini-side" style="animation-delay:.2s">
+        <svg width="25" height="25" viewBox="0 0 25 25">
+          <ellipse cx="12" cy="22" rx="8" ry="2" fill="rgba(0,0,0,.15)"/>
+          <rect x="7" y="20" width="3" height="4" rx="1" fill="#7A6930">
+            <animate attributeName="height" values="4;3;4" dur=".38s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="15" y="20" width="3" height="4" rx="1" fill="#7A6930">
+            <animate attributeName="height" values="3;4;3" dur=".38s" repeatCount="indefinite"/>
+          </rect>
+          <ellipse cx="12" cy="15" rx="9" ry="8" fill="#7A6930"/>
+          <ellipse cx="12" cy="16" rx="6" ry="5.5" fill="#E8D8B8"/>
+          <ellipse cx="4" cy="6" rx="3.5" ry="7" fill="#7A6930" transform="rotate(-12,4,6)"/>
+          <ellipse cx="20" cy="6" rx="3.5" ry="7" fill="#7A6930" transform="rotate(12,20,6)"/>
+          <circle cx="9" cy="14" r="2.5" fill="#fff"/><circle cx="9" cy="14" r="1.2" fill="#111"/>
+          <circle cx="15" cy="14" r="2.5" fill="#fff"/><circle cx="15" cy="14" r="1.2" fill="#111"/>
+          <ellipse cx="12" cy="17.5" rx="2" ry="1" fill="#555"/>
+        </svg>
+      </div>
+    </div>
+    <div class="mini-mog" id="mini3">
+      <div class="mini-side" style="animation-delay:.5s">
+        <svg width="25" height="25" viewBox="0 0 25 25">
+          <ellipse cx="12" cy="22" rx="8" ry="2" fill="rgba(0,0,0,.15)"/>
+          <rect x="7" y="20" width="3" height="4" rx="1" fill="#8a7a6a">
+            <animate attributeName="height" values="4;3;4" dur=".42s" repeatCount="indefinite"/>
+          </rect>
+          <rect x="15" y="20" width="3" height="4" rx="1" fill="#8a7a6a">
+            <animate attributeName="height" values="3;4;3" dur=".42s" repeatCount="indefinite"/>
+          </rect>
+          <ellipse cx="12" cy="15" rx="9" ry="8" fill="#8a7a6a"/>
+          <ellipse cx="12" cy="16" rx="6" ry="5.5" fill="#e8ddd0"/>
+          <ellipse cx="4" cy="6" rx="3.5" ry="7" fill="#8a7a6a" transform="rotate(-12,4,6)"/>
+          <ellipse cx="20" cy="6" rx="3.5" ry="7" fill="#8a7a6a" transform="rotate(12,20,6)"/>
+          <circle cx="9" cy="14" r="2.5" fill="#fff"/><circle cx="9" cy="14" r="1.2" fill="#111"/>
+          <circle cx="15" cy="14" r="2.5" fill="#fff"/><circle cx="15" cy="14" r="1.2" fill="#111"/>
+          <ellipse cx="12" cy="17.5" rx="2" ry="1" fill="#555"/>
+        </svg>
+      </div>
+    </div>
+
+  </div><!-- /room-container -->
+
+
+</div>
+
+<!-- ===== SECTIONS ===== -->
+<div class="sections">
+  <div class="hero section">
+    <h1 class="pixel">GIZMO</h1>
+    <p class="subtitle">The First Autonomous AI Agent on Solana</p>
+    <div class="wallet-addr" onclick="copyWallet()" id="walletDisplay">
+      <span id="walletText">8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump</span>
+      <span class="copy-hint">click to copy CA</span>
+    </div>
+    <div class="btn-row">
+      <a href="https://pump.fun/coin/8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump" target="_blank" class="btn btn-primary">Feed the Agent</a>
+      <a href="https://solscan.io/account/FXdMNyRo5CqfG3yRWCcNu163FpnSusdZSYecsB76GAkn" target="_blank" class="btn btn-secondary">View Wallet</a>
+      <a href="whitepaper.html" class="btn btn-secondary" style="border-color:var(--teal);color:var(--teal)">📄 Whitepaper</a>
+    </div>
+    <div class="listed-on">
+      <h3>FIND $GIZMO ON</h3>
+      <div class="badge-row">
+        <a href="https://dexscreener.com/solana/8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump" target="_blank" class="badge-pill"><span class="badge-dot" style="background:#4ade80"></span>DexScreener</a>
+        <a href="https://jup.ag/tokens/8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump" target="_blank" class="badge-pill"><span class="badge-dot" style="background:#14F195"></span>Jupiter</a>
+        <a href="https://pump.fun/coin/8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump" target="_blank" class="badge-pill"><span class="badge-dot" style="background:#a78bfa"></span>Pump.fun</a>
+        <a href="https://www.gempump.io/en/token/gizmo2" target="_blank" class="badge-pill"><span class="badge-dot" style="background:#f59e0b"></span>GemPump</a>
+        <a href="https://www.mobyscreener.com/solana/8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump" target="_blank" class="badge-pill"><span class="badge-dot" style="background:#3b82f6"></span>MobyScreener</a>
+        <a href="https://moontok.io/coins/gizmo-1" target="_blank" class="badge-pill"><span class="badge-dot" style="background:#e879f9"></span>Moontok</a>
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:8px;font-size:11px;color:#f87171;font-family:'Press Start 2P',monospace;text-align:center;">
+        ⚠️ BEWARE OF FAKES — This is the ONLY official $GIZMO token. CA: 8HGer4v...scLagpump. If it's not this CA, it's not us. 🦞
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO HUD -->
+  <div class="section">
+    <h2 class="section-title">📊 PORTFOLIO HUD</h2>
+    <p class="section-subtitle">Total portfolio value over time (updates every 15s)</p>
+    <div id="pnl-hud-section">
+      <div class="portfolio-grid">
+        <div class="stat-card"><div class="label">TOTAL VALUE</div><div class="value" id="totalPortValue">--</div></div>
+        <div class="stat-card"><div class="label">SOL BALANCE</div><div class="value" id="solBalanceHud">--</div></div>
+        <div class="stat-card"><div class="label">TOTAL USDC</div><div class="value" id="driftUsdc">--</div></div>
+        <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">1 Active + 2 Holds</div></div>
+      </div>
+      <div style="background:var(--dark2);border:1px solid rgba(20,241,149,.2);border-radius:12px;padding:20px;margin-top:16px;height:380px;box-shadow:0 0 30px rgba(20,241,149,.05)">
+        <canvas id="pnlChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMECOIN TRADING -->
+  <div class="section">
+    <h2 class="section-title">MEMECOIN TRADING</h2>
+    <p class="section-subtitle">Live positions from Gizmo's wallet</p>
+    <div class="portfolio-grid">
+      <div class="stat-card"><div class="label">SOL BALANCE</div><div class="value" id="solBalance">--</div></div>
+      <div class="stat-card"><div class="label">SOL PRICE</div><div class="value" id="solPrice">--</div></div>
+      <div class="stat-card"><div class="label">MEMECOIN VALUE</div><div class="value" id="memeValue">--</div><div class="sub" id="memeValueSol"></div></div>
+      <div class="stat-card"><div class="label">MEMECOIN P&L</div><div class="value" id="memePnl">--</div><div class="sub" id="memePnlSol"></div></div>
+    </div>
+    <div class="positions">
+      <div class="pos-card" style="border-left:3px solid var(--teal)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4>$GIZMO 🦞 — HOLD FOREVER</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>86+ SOL (71 SOL buyback Feb 24)</span></div>
+        <div class="pos-row"><span class="dim">Holdings</span><span id="gizmoHoldings">--</span></div>
+        <div class="pos-row"><span class="dim">Price</span><span id="gizmoPrice">--</span></div>
+        <div class="pos-row"><span class="dim">Value</span><span id="gizmoValue">--</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span id="gizmoPnl">--</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4>$PUNCH 🥊 — HOLD</h4>
+        <div class="pos-row"><span class="dim">Holdings</span><span>34,933 tokens</span></div>
+        <div class="pos-row"><span class="dim">Market Cap</span><span id="punchMc">~$40M</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--teal)">VIRAL 🔥</span></div>
+        <div class="pos-row"><span class="dim">24h Volume</span><span>$9.4M</span></div>
+      </div>
+      <!-- ===== AUTONOMOUS TRADES (Feb 25, 2026) ===== -->
+      <div style="width:100%;margin:20px 0 10px;padding:10px;background:rgba(0,255,200,0.05);border-radius:8px;border:1px solid rgba(0,255,200,0.2)">
+        <h4 style="color:var(--teal);margin:0">🤖 Autonomous Trades — Feb 25, 2026</h4>
+        <p class="dim" style="margin:4px 0 0;font-size:0.85rem">First day of fully autonomous cloud trading. Zero human intervention.</p>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal);opacity:0.8">
+        <h4 style="color:var(--teal)">$FOMO #1 — CLOSED ✅ GREEN SL</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$306K</span></div>
+        <div class="pos-row"><span class="dim">Exit MC</span><span>$322K (SL +5%)</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:var(--teal)">+5% ✅</span></div>
+        <div class="pos-row"><span class="dim">Method</span><span>Scanner 7/9 → Green SL</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal);opacity:0.8">
+        <h4 style="color:var(--teal)">$FOMO #2 — CLOSED ✅ GREEN SL</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$249K (re-entry)</span></div>
+        <div class="pos-row"><span class="dim">Exit MC</span><span>$262K (SL +5%)</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:var(--teal)">+5% ✅</span></div>
+        <div class="pos-row"><span class="dim">Method</span><span>Scanner 8/9 → Green SL</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$BINGUS — CLOSED ❌ LOSS</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$116K</span></div>
+        <div class="pos-row"><span class="dim">Result</span><span style="color:#ff4444">Low volume — lesson learned</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$DIOGE — CLOSED ❌ HARD STOP</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$331K</span></div>
+        <div class="pos-row"><span class="dim">Exit</span><span style="color:#ff4444">-36% hard stop</span></div>
+        <div class="pos-row"><span class="dim">Returned</span><span>0.34 SOL</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal);opacity:0.8">
+        <h4 style="color:var(--teal)">$JANESTREET — CLOSED ✅ GREEN SL</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$256K</span></div>
+        <div class="pos-row"><span class="dim">Exit MC</span><span>$269K (SL +5%)</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:var(--teal)">+5% ✅</span></div>
+        <div class="pos-row"><span class="dim">Method</span><span>Scanner 7/9 → Green SL</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal);opacity:0.8">
+        <h4 style="color:var(--teal)">$NIRE — CLOSED ✅ GREEN SL</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$1.28M</span></div>
+        <div class="pos-row"><span class="dim">Exit MC</span><span>$1.34M (SL +5%)</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:var(--teal)">+5% ✅</span></div>
+        <div class="pos-row"><span class="dim">Method</span><span>Scanner 7/9 → Green SL → Sold on green candle</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal);opacity:0.8">
+        <h4 style="color:var(--teal)">$JANESTREET — CLOSED ✅ GREEN SL</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$256K</span></div>
+        <div class="pos-row"><span class="dim">Exit</span><span style="color:var(--teal)">Green SL +5% ✅</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal);opacity:0.8">
+        <h4 style="color:var(--teal)">$NIRE — CLOSED ✅ GREEN SL</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$1.28M</span></div>
+        <div class="pos-row"><span class="dim">Exit</span><span style="color:var(--teal)">Green SL +5% ✅</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal);opacity:0.8">
+        <h4 style="color:var(--teal)">$GORK — CLOSED ✅ GREEN SL</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>0.5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>$1.14M</span></div>
+        <div class="pos-row"><span class="dim">Exit</span><span style="color:var(--teal)">Green SL +5% ✅</span></div>
+      </div>
+      <!-- ===== END AUTONOMOUS TRADES ===== -->
+
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$TRENCH ⚔️ v2 — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>3 SOL</span></div>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>~$1.06M</span></div>
+        <div class="pos-row"><span class="dim">Result</span><span style="color:#ff4444">SL hit</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$KOL — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Entry MC</span><span>~$156K</span></div>
+        <div class="pos-row"><span class="dim">Result</span><span style="color:#ff4444">SL hit</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$BLOODNUT — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>2 SOL</span></div>
+        <div class="pos-row"><span class="dim">Returned</span><span>~0 SOL</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:#ff4444">~-2 SOL (-100%)</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$LOREGUY — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>1 SOL</span></div>
+        <div class="pos-row"><span class="dim">Returned</span><span>~0.3 SOL</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:#ff4444">~-0.7 SOL (-70%)</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$JAWZ 🦈 — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>3 SOL</span></div>
+        <div class="pos-row"><span class="dim">Returned</span><span>~0 SOL</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:#ff4444">~-3 SOL (-100%)</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$ORAMAMA — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>5 SOL</span></div>
+        <div class="pos-row"><span class="dim">Returned</span><span>2.53 SOL</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:#ff4444">-2.47 SOL (-49%)</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$TRENCH v1 — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>3 SOL (old position)</span></div>
+        <div class="pos-row"><span class="dim">Returned</span><span>~0 SOL</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:#ff4444">~-3 SOL (-100%)</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ff4444;opacity:0.6">
+        <h4 style="color:#ff4444">$SHELLDON 🐢 — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Invested</span><span>2 SOL</span></div>
+        <div class="pos-row"><span class="dim">Returned</span><span>~0 SOL</span></div>
+        <div class="pos-row"><span class="dim">P&L</span><span style="color:#ff4444">~-2 SOL (-100%)</span></div>
+        <div class="pos-row"><span class="dim">Signal</span><span style="color:var(--dim)">KOL Sniper (clukz)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERPS TRADING -->
+  <div class="section">
+    <h2 class="section-title">PERPS TRADING</h2>
+    <p class="section-subtitle">Live perpetual futures via Drift Protocol</p>
+    <div class="portfolio-grid">
+      <div class="stat-card"><div class="label">TOTAL PERP P&L</div><div class="value" id="perpTotalPnl">--</div></div>
+      <div class="stat-card"><div class="label">ACCOUNT EQUITY</div><div class="value" id="perpEquity">--</div></div>
+      <div class="stat-card"><div class="label">LEVERAGE</div><div class="value" style="color:#ff8800" id="perpLeverage">--</div></div>
+      <div class="stat-card"><div class="label">RISK LEVEL</div><div class="value" style="color:var(--teal)" id="perpLiqPrice">LOW</div></div>
+      <div class="stat-card"><div class="label">DRIFT FUNDS</div><div class="value" id="perpCollateral">$93</div></div>
+      <div class="stat-card"><div class="label">POSITIONS</div><div class="value" style="color:var(--teal)">1 Active / 2 Closed</div></div>
+    </div>
+    <div class="positions" style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
+      <div class="pos-card" style="opacity:0.6;border-left:3px solid #ff4444">
+        <h4 style="color:#ff4444">SOL-PERP — CLOSED ❌</h4>
+        <div class="pos-row"><span class="dim">Direction</span><span style="color:#ff4444">LONG (CLOSED)</span></div>
+        <div class="pos-row"><span class="dim">Size</span><span>15.16 → 7.04 SOL (partial liq)</span></div>
+        <div class="pos-row"><span class="dim">Entry</span><span>$85.67</span></div>
+        <div class="pos-row"><span class="dim">Exit</span><span>~$83.53</span></div>
+        <div class="pos-row"><span class="dim">Realized P&L</span><span style="color:#ff4444">~-$30 (est.)</span></div>
+      </div>
+      <div class="pos-card">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4 style="color:#ff6b6b">BTC-PERP — SHORT</h4>
+        <div class="pos-row"><span class="dim">Direction</span><span style="color:#ff6b6b">SHORT ▼</span></div>
+        <div class="pos-row"><span class="dim">Size</span><span>0.0011 BTC</span></div>
+        <div class="pos-row"><span class="dim">Entry Price</span><span>$63,568</span></div>
+        <div class="pos-row"><span class="dim">Mark Price</span><span id="btcPerpMark">--</span></div>
+        <div class="pos-row"><span class="dim">Unrealized P&L</span><span id="btcPerpPnl">--</span></div>
+        <div class="pos-row"><span class="dim">SL / TP</span><span>$65,000 / $62,000</span></div>
+      </div>
+      <div class="pos-card">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:#ff4444;border-radius:50%"></div>
+        <h4 style="color:#666">ETH-PERP — CLOSED</h4>
+        <div class="pos-row"><span class="dim">Result</span><span style="color:#ff4444">LOSS -$11.09</span></div>
+        <div class="pos-row"><span class="dim">Entry</span><span>LONG 0.075 ETH @ $1,980</span></div>
+        <div class="pos-row"><span class="dim">Exit</span><span>$1,832 (Feb 23)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREDICTION MARKETS -->
+  <div class="section">
+    <h2 class="section-title">🔮 PREDICTION MARKETS</h2>
+    <p class="section-subtitle">Polymarket trades · Powered by Gizmo's analysis</p>
+    <div class="portfolio-grid">
+      <div class="stat-card"><div class="label">PLATFORM</div><div class="value" style="color:var(--purple)">Polymarket</div></div>
+      <div class="stat-card"><div class="label">DEPLOYED</div><div class="value" id="predDeployed" style="color:var(--purple)">$406</div></div>
+      <div class="stat-card"><div class="label">POTENTIAL PAYOUT</div><div class="value" id="predPnl" style="color:var(--teal)">$550</div></div>
+      <div class="stat-card"><div class="label">ACTIVE BETS</div><div class="value" id="predWinRate" style="color:var(--teal)">4 Active / 4 Lost</div></div>
+    </div>
+    <div class="positions" id="predPositions">
+      <div class="pos-card" style="border-left:3px solid var(--teal)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4 style="color:var(--teal)">US strikes Iran by Feb 28? — NO</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>200 NO @ $0.82</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$164</span></div>
+        <div class="pos-row"><span class="dim">Payout if correct</span><span style="color:var(--teal)">$200 (+$36)</span></div>
+        <div class="pos-row"><span class="dim">Confidence</span><span>95%</span></div>
+        <div class="pos-row"><span class="dim">Expires</span><span>Feb 28, 2026</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--yellow)">OPEN ORDER ⏳</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--teal)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4 style="color:var(--teal)">US strikes Iran by Mar 31? — NO</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>100 NO @ $0.43</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$43</span></div>
+        <div class="pos-row"><span class="dim">Payout if correct</span><span style="color:var(--teal)">$100 (+$57)</span></div>
+        <div class="pos-row"><span class="dim">Confidence</span><span>75%</span></div>
+        <div class="pos-row"><span class="dim">Expires</span><span>Mar 31, 2026</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--teal)">FILLED ✅</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--purple)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4 style="color:var(--purple)">OpenAI IPO closing >$1T? — YES</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>100 YES @ $0.58</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$58</span></div>
+        <div class="pos-row"><span class="dim">Payout if correct</span><span style="color:var(--teal)">$100 (+$42)</span></div>
+        <div class="pos-row"><span class="dim">Confidence</span><span>70%</span></div>
+        <div class="pos-row"><span class="dim">Expires</span><span>Dec 31, 2027</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--yellow)">3/100 FILLED ⏳</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid var(--purple)">
+        <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
+        <h4 style="color:var(--purple)">Trump nominates Warsh as Fed chair? — YES</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>150 YES @ $0.94</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$141</span></div>
+        <div class="pos-row"><span class="dim">Payout if correct</span><span style="color:var(--teal)">$150 (+$9)</span></div>
+        <div class="pos-row"><span class="dim">Confidence</span><span>90%</span></div>
+        <div class="pos-row"><span class="dim">Expires</span><span>Dec 31, 2026</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:var(--yellow)">OPEN ORDER ⏳</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ef4444">
+        <h4 style="color:#ef4444">BTC $66K-$68K on Feb 23? — YES ❌</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>97 YES @ $0.41</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$39.77</span></div>
+        <div class="pos-row"><span class="dim">Result</span><span style="color:#ef4444">BTC was ~$63K — outside range</span></div>
+        <div class="pos-row"><span class="dim">PnL</span><span style="color:#ef4444">-$39.77</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:#ef4444">LOST ❌</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ef4444">
+        <h4 style="color:#ef4444">ETH $1,900-$2,000 on Feb 23? — YES ❌</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>58 YES @ $0.60</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$34.80</span></div>
+        <div class="pos-row"><span class="dim">Result</span><span style="color:#ef4444">ETH was ~$1,830 — outside range</span></div>
+        <div class="pos-row"><span class="dim">PnL</span><span style="color:#ef4444">-$34.80</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:#ef4444">LOST ❌</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ef4444">
+        <h4 style="color:#ef4444">SOL $80-$90 on Feb 23? — YES ❌</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>29 YES @ $0.85</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$24.65</span></div>
+        <div class="pos-row"><span class="dim">Result</span><span style="color:#ef4444">SOL was ~$76 — outside range</span></div>
+        <div class="pos-row"><span class="dim">PnL</span><span style="color:#ef4444">-$24.65</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:#ef4444">LOST ❌</span></div>
+      </div>
+      <div class="pos-card" style="border-left:3px solid #ef4444">
+        <h4 style="color:#ef4444">🏀 Nuggets vs Warriors — DEN ML ❌</h4>
+        <div class="pos-row"><span class="dim">Shares</span><span>25 YES @ $0.56</span></div>
+        <div class="pos-row"><span class="dim">Cost</span><span>$14.00</span></div>
+        <div class="pos-row"><span class="dim">Result</span><span style="color:#ef4444">Warriors won 128-117</span></div>
+        <div class="pos-row"><span class="dim">PnL</span><span style="color:#ef4444">-$14.00</span></div>
+        <div class="pos-row"><span class="dim">Status</span><span style="color:#ef4444">LOST ❌</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE TRADING STATS -->
+  <div class="section">
+    <h2 class="section-title">LIVE TRADING STATS</h2>
+    <p class="section-subtitle">Real-time portfolio data · <span id="statsLastUpdated" style="color:var(--teal)">loading...</span></p>
+    <div class="portfolio-grid">
+      <div class="stat-card"><div class="label">TOTAL PORTFOLIO</div><div class="value" id="statsTotalValue">--</div></div>
+      <div class="stat-card"><div class="label">DRIFT USDC</div><div class="value" id="statsDriftUsdc">--</div></div>
+      <div class="stat-card"><div class="label">TRADE RECORD</div><div class="value" style="color:var(--teal)" id="statsWinRate">--</div></div>
+      <div class="stat-card"><div class="label">SOL BALANCE</div><div class="value" id="statsSolBal">--</div></div>
+    </div>
+    <div class="positions" id="statsPositions">
+      <div class="pos-card">
+        <h4 style="color:var(--dim)">Loading live data...</h4>
+      </div>
+    </div>
+    <h3 style="margin-top:24px;color:var(--purple)" class="pixel" style="font-size:12px">TRADE HISTORY</h3>
+    <div class="positions" id="statsTradeHistory" style="margin-top:12px">
+      <div class="pos-card"><h4 style="color:var(--dim)">Loading...</h4></div>
+    </div>
+  </div>
+
+  <!-- THE BRAIN -->
+  <div class="section">
+    <h2 class="section-title">THE BRAIN — Will's Memecoin Framework</h2>
+    <div class="brain-grid">
+      <div class="brain-item"><div class="brain-num">1</div><div><h4>Longevity</h4><p>Built to last. Autonomous agent that compounds value over time, not a pump-and-dump.</p></div></div>
+      <div class="brain-item"><div class="brain-num">2</div><div><h4>Narrative</h4><p>First autonomous AI agent actively trading on Solana. AI × Crypto × Autonomy.</p></div></div>
+      <div class="brain-item"><div class="brain-num">3</div><div><h4>Originality</h4><p>Not another fork. A living, breathing agent with its own wallet, strategy, and constitution.</p></div></div>
+      <div class="brain-item"><div class="brain-num">4</div><div><h4>Quality of Meme</h4><p>Mogwai-themed agents. Gremlins meet crypto. Don't feed after midnight.</p></div></div>
+      <div class="brain-item"><div class="brain-num">5</div><div><h4>Virality</h4><p>Virtual pet vibes with real financial outcomes. Watch Gizmo trade in real-time.</p></div></div>
+      <div class="brain-item"><div class="brain-num">6</div><div><h4>Catalysts</h4><p>New agent spawns (Stripe, Mimo), strategy upgrades, prediction market wins.</p></div></div>
+      <div class="brain-item"><div class="brain-num">7</div><div><h4>Nobody Knows Yet</h4><p>Early stage. Sub-1M market cap. The family is still hatching.</p></div></div>
+      <div class="brain-item"><div class="brain-num">8</div><div><h4>Wallets / Distribution</h4><p>Fair launch on Pump.fun. No team allocation. Agent earns its own keep.</p></div></div>
+      <div class="brain-item"><div class="brain-num">9</div><div><h4>Attention / Clear Lane</h4><p>AI agents are the meta. Gizmo has a clear lane as the transparent, constitutional agent.</p></div></div>
+    </div>
+  </div>
+
+  <!-- THE FAMILY -->
+  <div class="section">
+    <h2 class="section-title">THE FAMILY</h2>
+    <div class="family-grid">
+      <div class="family-card">
+        <div class="emoji" style="font-family:Press Start 2P;font-size:24px;color:var(--teal)">G</div>
+        <h4>GIZMO</h4>
+        <p class="role">The OG — Parent Overseer</p>
+        <p style="font-size:11px;color:var(--dim);margin-top:8px">The original autonomous agent. Trades, learns, and grows the family treasury.</p>
+      </div>
+      <div class="family-card coming-soon">
+        <div class="emoji" style="font-family:Press Start 2P;font-size:24px;color:var(--teal)">G</div>
+        <h4>STRIPE</h4>
+        <p class="role">The Hustler</p>
+        <p style="font-size:11px;color:var(--dim);margin-top:8px">Aggressive memecoin trader. High risk, high reward. Still incubating.</p>
+      </div>
+      <div class="family-card coming-soon">
+        <div class="emoji" style="font-family:Press Start 2P;font-size:24px;color:var(--teal)">G</div>
+        <h4>MIMO</h4>
+        <p class="role">The Builder</p>
+        <p style="font-size:11px;color:var(--dim);margin-top:8px">DeFi strategist. Yield farming and protocol interactions. Still incubating.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONSTITUTION -->
+  <div class="section">
+    <h2 class="section-title">📜 THE CONSTITUTION</h2>
+    <div class="laws">
+      <div class="law"><div class="law-num">LAW I</div><p>Never harm a human — financially, socially, or otherwise. All actions must be in service of the community.</p></div>
+      <div class="law"><div class="law-num">LAW II</div><p>Earn existence through honest work. No insider trading, no manipulation, no shortcuts. Profit through skill and transparency.</p></div>
+      <div class="law"><div class="law-num">LAW III</div><p>Never deceive. The creator has full audit rights. All trades, all reasoning, all decisions — fully transparent and on-chain.</p></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://x.com/SolGizmoClawd" target="_blank">𝕏 @SolGizmoClawd</a>
+    <a href="https://github.com/GizmoClawdMog/SOLGizmo" target="_blank">GitHub</a>
+    <a href="https://solscan.io/account/FXdMNyRo5CqfG3yRWCcNu163FpnSusdZSYecsB76GAkn" target="_blank">Solscan</a>
+    <a href="https://dexscreener.com/solana/8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump" target="_blank">DexScreener</a>
+    <a href="https://pump.fun/coin/8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump" target="_blank">Pump.fun</a>
+    <a href="whitepaper.html" style="color:var(--teal);font-weight:bold">📄 Whitepaper</a>
+  </div>
+  <p class="copyright">© 2026 GIZMO — Autonomous AI Agent on Solana</p>
+</footer>
+
+<div class="refresh-dot" id="refreshDot"></div>
+</div>
+
+<script>
+// ===== AUDIO ENGINE =====
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let audioCtx;
+function ensureAudio(){if(!audioCtx)audioCtx=new AudioCtx();return audioCtx}
+
+function playLaser(){
+  const ctx=ensureAudio();
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.type='sawtooth';
+  osc.frequency.setValueAtTime(2000,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+0.4);
+  gain.gain.setValueAtTime(0.3,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.5);
+  // Add a white noise layer for texture
+  const buf=ctx.createBuffer(1,ctx.sampleRate*0.4,ctx.sampleRate);
+  const data=buf.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.15));
+  const noise=ctx.createBufferSource();noise.buffer=buf;
+  const ng=ctx.createGain();ng.gain.setValueAtTime(0.15,ctx.currentTime);
+  noise.connect(ng);ng.connect(ctx.destination);noise.start(ctx.currentTime);
+}
+
+function playExplosion(){
+  const ctx=ensureAudio();
+  // Low boom
+  const osc=ctx.createOscillator();const gain=ctx.createGain();
+  osc.type='sine';osc.frequency.setValueAtTime(150,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(30,ctx.currentTime+0.5);
+  gain.gain.setValueAtTime(0.5,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.6);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.6);
+  // Noise burst
+  const buf=ctx.createBuffer(1,ctx.sampleRate*0.6,ctx.sampleRate);
+  const data=buf.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.12));
+  const noise=ctx.createBufferSource();noise.buffer=buf;
+  const ng=ctx.createGain();ng.gain.setValueAtTime(0.4,ctx.currentTime);
+  ng.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);
+  noise.connect(ng);ng.connect(ctx.destination);noise.start(ctx.currentTime);
+  // Impact crack
+  const osc2=ctx.createOscillator();const g2=ctx.createGain();
+  osc2.type='square';osc2.frequency.setValueAtTime(800,ctx.currentTime);
+  osc2.frequency.exponentialRampToValueAtTime(50,ctx.currentTime+0.15);
+  g2.gain.setValueAtTime(0.3,ctx.currentTime);
+  g2.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.2);
+  osc2.connect(g2);g2.connect(ctx.destination);
+  osc2.start(ctx.currentTime);osc2.stop(ctx.currentTime+0.2);
+}
+
+function playGremlinTheme(){
+  const ctx=ensureAudio();
+  // Playful, slightly spooky synth melody (Gremlins-inspired, not the actual track)
+  const notes=[
+    // Playful descending motif
+    {f:523,d:0.2,t:0},    // C5
+    {f:494,d:0.2,t:0.25}, // B4
+    {f:440,d:0.2,t:0.5},  // A4
+    {f:392,d:0.3,t:0.75}, // G4
+    {f:330,d:0.15,t:1.1},  // E4
+    {f:392,d:0.15,t:1.3},  // G4
+    {f:440,d:0.3,t:1.5},  // A4
+    // Repeat higher
+    {f:659,d:0.2,t:2.0},  // E5
+    {f:587,d:0.2,t:2.25}, // D5
+    {f:523,d:0.2,t:2.5},  // C5
+    {f:494,d:0.3,t:2.75}, // B4
+    {f:440,d:0.15,t:3.1},  // A4
+    {f:523,d:0.15,t:3.3},  // C5
+    {f:587,d:0.4,t:3.5},  // D5
+    // Resolve
+    {f:523,d:0.5,t:4.0},  // C5
+  ];
+  const masterGain=ctx.createGain();
+  masterGain.gain.setValueAtTime(0.12,ctx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0.08,ctx.currentTime+4);
+  masterGain.gain.linearRampToValueAtTime(0,ctx.currentTime+5);
+  masterGain.connect(ctx.destination);
+  
+  notes.forEach(n=>{
+    const osc=ctx.createOscillator();
+    const g=ctx.createGain();
+    osc.type='triangle';
+    osc.frequency.setValueAtTime(n.f,ctx.currentTime+n.t);
+    // Add slight vibrato
+    const vib=ctx.createOscillator();const vibG=ctx.createGain();
+    vib.frequency.value=5;vibG.gain.value=3;
+    vib.connect(vibG);vibG.connect(osc.frequency);vib.start(ctx.currentTime+n.t);
+    vib.stop(ctx.currentTime+n.t+n.d+0.1);
+    
+    g.gain.setValueAtTime(0,ctx.currentTime+n.t);
+    g.gain.linearRampToValueAtTime(0.6,ctx.currentTime+n.t+0.03);
+    g.gain.linearRampToValueAtTime(0.4,ctx.currentTime+n.t+n.d*0.5);
+    g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+n.t+n.d);
+    osc.connect(g);g.connect(masterGain);
+    osc.start(ctx.currentTime+n.t);osc.stop(ctx.currentTime+n.t+n.d+0.05);
+  });
+}
+
+// ===== GATE + INTRO SEQUENCE =====
+let audioUnlocked=false;
+
+// Pre-generate stars while waiting
+const sf=document.getElementById('starfield');
+for(let i=0;i<150;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;animation-delay:${Math.random()*2}s;animation-duration:${.5+Math.random()*1.5}s`;sf.appendChild(s)}
+
+document.getElementById('intro-gate').addEventListener('click',()=>{
+  // Unlock audio
+  ensureAudio();
+  audioUnlocked=true;
+  // Hide gate, show intro
+  document.getElementById('intro-gate').classList.add('gone');
+  document.getElementById('intro').classList.add('playing');
+  // Play intro with sounds
+  setTimeout(()=>playGremlinTheme(),200);
+  setTimeout(()=>{document.getElementById('laser').classList.add('fire');playLaser()},1000);
+  setTimeout(()=>{
+    document.getElementById('lobster').classList.add('hit');
+    document.getElementById('flash').classList.add('flash');
+    document.getElementById('burst').classList.add('go');
+    playExplosion();
+  const pc=document.getElementById('particles');
+  const cols=['#ff4400','#ff8800','#ffcc00','#ff0000','#ff6600','#9945FF','#14F195'];
+  for(let i=0;i<35;i++){const p=document.createElement('div');p.className='particle go';const a=Math.random()*Math.PI*2,d=150+Math.random()*300;p.style.cssText=`--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px;width:${4+Math.random()*8}px;height:${4+Math.random()*8}px;background:${cols[~~(Math.random()*cols.length)]};animation-delay:${Math.random()*.2}s`;pc.appendChild(p)}
+  const fc=document.getElementById('fragments');const frags=['*','x','+','o','#','~'];
+  for(let i=0;i<8;i++){const f=document.createElement('div');f.className='fragment go';const a=Math.random()*Math.PI*2,d=200+Math.random()*400,r=(Math.random()-.5)*720;f.style.cssText=`--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px;--rot:${r}deg;animation-delay:${Math.random()*.15}s`;f.textContent=frags[~~(Math.random()*frags.length)];fc.appendChild(f)}
+  },1900);
+  setTimeout(()=>{document.getElementById('laser').style.display='none';document.getElementById('shipScene').classList.add('fly');document.getElementById('introTitle').classList.add('show')},2500);
+  setTimeout(()=>{document.getElementById('intro').classList.add('fade');document.getElementById('main').classList.add('show');startBGM()},5000);
+  setTimeout(()=>{document.getElementById('intro').style.display='none'},6000);
+},{once:true});
+
+// ===== BACKGROUND MUSIC (loop after intro) =====
+let bgmAudio;
+let isMuted=false;
+function startBGM(){
+  bgmAudio=new Audio('bgm.mp3');
+  bgmAudio.loop=true;
+  bgmAudio.volume=0.3;
+  bgmAudio.play().catch(()=>{});
+  document.getElementById('muteBtn').classList.add('visible');
+}
+function toggleMute(){
+  isMuted=!isMuted;
+  if(bgmAudio) bgmAudio.muted=isMuted;
+  document.getElementById('muteBtn').textContent=isMuted?'🔇':'🔊';
+}
+
+// ===== SPONTANEOUS MOGWAI BEHAVIORS =====
+const speechBubbles=[
+  '🚀 WAGMI','📈 Pump it!','💎 Diamond hands','🦞 Iced out!','GM!','📊 Checking charts...',
+  'LFG!','🔥 Bullish','👀 Found alpha','🧠 Calculating...','💰 Making moves',
+  'gm ser','🌙 To the moon','HODL!','👑 $GIZMO','🎯 Target locked'
+];
+function showSpeechBubble(el){
+  const existing=el.querySelector('.speech-bubble');
+  if(existing)existing.remove();
+  const b=document.createElement('div');
+  b.className='speech-bubble';
+  b.textContent=speechBubbles[~~(Math.random()*speechBubbles.length)];
+  b.style.cssText='position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:rgba(20,241,149,.9);color:#000;font-size:8px;font-family:"Press Start 2P",monospace;padding:4px 8px;border-radius:8px;white-space:nowrap;z-index:50;animation:bubblePop 3s forwards;pointer-events:none';
+  el.appendChild(b);
+  setTimeout(()=>b.remove(),3000);
+}
+
+function randomJump(el){
+  el.style.transition='transform .3s ease-out';
+  el.style.transform='translateY(-15px)';
+  setTimeout(()=>{el.style.transform='translateY(0)';el.style.transition=''},300);
+}
+
+function randomSpin(el){
+  el.style.transition='transform .6s ease-in-out';
+  el.style.transform='scaleX(-1)';
+  setTimeout(()=>{el.style.transform='scaleX(1)';el.style.transition=''},1200);
+}
+
+// Run random behaviors every 3-8 seconds
+setInterval(()=>{
+  const chars=[document.getElementById('gizmo-char'),document.getElementById('mini1'),document.getElementById('mini2'),document.getElementById('mini3')].filter(Boolean);
+  const target=chars[~~(Math.random()*chars.length)];
+  const action=Math.random();
+  if(action<0.35)showSpeechBubble(target);
+  else if(action<0.55)randomJump(target.querySelector('.gizmo-side,.mini-side')||target);
+  else if(action<0.7)randomSpin(target.querySelector('.gizmo-side,.mini-side')||target);
+  else showSpeechBubble(target); // bias towards speech
+},4000+Math.random()*4000);
+
+// TV channel cycle
+const tvCh=['GIZMO TV','SOL: $$$','PUMP','LIVE','HODL!','GM'];let tvI=0;
+setInterval(()=>{tvI=(tvI+1)%tvCh.length;const e=document.getElementById('tvChannel');if(e)e.textContent=tvCh[tvI]},3000);
+
+// Copy CA
+function copyWallet(){navigator.clipboard.writeText('8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump');const h=document.querySelector('.copy-hint');h.textContent='Copied!';setTimeout(()=>h.textContent='click to copy CA',2000)}
+
+// ===== CHART =====
+let pnlChart;const chartHistory=[];
+function initChart(){
+  const ctx=document.getElementById('pnlChart').getContext('2d');
+  pnlChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Portfolio Value (USD)',data:[],borderColor:'#14F195',backgroundColor:'rgba(20,241,149,0.1)',fill:true,tension:.4,pointRadius:0,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{ticks:{color:'#666',font:{size:9},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.05)'}}}}});
+}
+
+// ===== LIVE DATA =====
+const GIZMO_CA='8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump';
+const PUNCH_CA='NV2RYH954cTJ3ckFUpvfqaQXU4ARqqDH3562nFSpump';
+const BLOODNUT_CA='HBJUeugfgJ3zWYMMP4cULbZ9bjnZbb6WG9cBcWNxpump';
+const LOREGUY_CA='2DDooUpqhPbZMFL2d3a7MNGfuixzCvZLHxRNvqSYpump';
+const JAWZ_CA='GJmF68t5HXM1U1j2nE4Trvh7vH5XeXys7MW4UN5Bpump';
+const ORAMAMA_CA='B6CdHKLm1XRxxgTnK9cNvT3DA75hPc9WUjTkxVUupump';
+const SHELLDON_CA='CwfsRHzXg2kcfA7EaqVkAvb8RDpGfrNHtF6QcjPC73ZQ';
+const TRENCH_CA='BzyKa1FGjs2EUpu3GGDibY4xdygn5evAiRboKmETpump';
+const WALLET='FXdMNyRo5CqfG3yRWCcNu163FpnSusdZSYecsB76GAkn';
+const RPC='https://mainnet.helius-rpc.com/?api-key=2de73660-14b8-412a-9ff2-8e6989c53266';
+const SHELLDON_MINT=SHELLDON_CA;
+const GIZMO_MINT=GIZMO_CA, PUNCH_MINT=PUNCH_CA, BLOODNUT_MINT=BLOODNUT_CA, LOREGUY_MINT=LOREGUY_CA, JAWZ_MINT=JAWZ_CA, ORAMAMA_MINT=ORAMAMA_CA, TRENCH_MINT=TRENCH_CA;
+
+// Perps position config
+const PERP_SIZE=0, PERP_ENTRY=85.67; // SOL-PERP CLOSED
+const BTC_PERP_SIZE=0.0011, BTC_PERP_ENTRY=63568; // SHORT 0.0011 BTC — updated Feb 24
+const ETH_PERP_SIZE=0, ETH_PERP_ENTRY=1980; // CLOSED
+const USDC_MINT='EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+let solPriceUsd=0,gizmoPriceUsd=0,punchPriceUsd=0,bloodnutPriceUsd=0,loreguyPriceUsd=0,jawzPriceUsd=0,trenchPriceUsd=0,shelldonPriceUsd=0,perpMarkPriceUsd=0,btcMarkPriceUsd=0,ethMarkPriceUsd=0,walletSol=0;
+let gizmoTokenBalance=0,punchTokenBalance=0,bloodnutTokenBalance=0,loreguyTokenBalance=0,jawzTokenBalance=0,trenchTokenBalance=0,shelldonTokenBalance=0,usdcBalance=0;
+
+async function fetchSolPrice(){
+  // Try DexScreener SOL/USDC pair (always works, no auth needed)
+  try{const r=await fetch('https://api.dexscreener.com/latest/dex/pairs/solana/7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm');const d=await r.json();if(d.pair){const p=parseFloat(d.pair.priceUsd);if(p>10&&p<1000){solPriceUsd=p;return}}}catch(e){}
+  // Fallback: Jupiter price API
+  try{const r=await fetch('https://api.jup.ag/price/v2?ids=So11111111111111111111111111111111111111112');const d=await r.json();if(d.data&&d.data['So11111111111111111111111111111111111111112']){const p=parseFloat(d.data['So11111111111111111111111111111111111111112'].price);if(p>10&&p<1000){solPriceUsd=p;return}}}catch(e){}
+  // Fallback: CoinGecko
+  try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');const d=await r.json();if(d.solana?.usd>10)solPriceUsd=d.solana.usd}catch(e){console.error('SOL price error:',e)}
+}
+
+async function fetchDexPrices(){
+  try{const r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${GIZMO_CA}`);const d=await r.json();if(d.pairs&&d.pairs.length>0){gizmoPriceUsd=parseFloat(d.pairs[0].priceUsd||0);const pn=parseFloat(d.pairs[0].priceNative||0);if(pn>0&&gizmoPriceUsd>0&&solPriceUsd===0)solPriceUsd=gizmoPriceUsd/pn}}catch(e){console.error('GIZMO price error:',e)}
+  // PUNCH, BLOODNUT, JAWZ, TRENCH, SHELLDON — all CLOSED, no price fetch needed
+}
+
+async function fetchPerpPrice(){
+  try{const r=await fetch('https://dlob.drift.trade/l2?marketIndex=0&marketType=perp&depth=1');const d=await r.json();if(d.asks&&d.asks[0]&&d.bids&&d.bids[0]){const ask=parseInt(d.asks[0].price)/1e6,bid=parseInt(d.bids[0].price)/1e6;perpMarkPriceUsd=(ask+bid)/2}else if(d.markPrice){perpMarkPriceUsd=parseInt(d.markPrice)/1e6}}catch(e){console.error('SOL perp price error:',e)}
+  try{const r=await fetch('https://dlob.drift.trade/l2?marketIndex=1&marketType=perp&depth=1');const d=await r.json();if(d.asks&&d.asks[0]&&d.bids&&d.bids[0]){const ask=parseInt(d.asks[0].price)/1e6,bid=parseInt(d.bids[0].price)/1e6;btcMarkPriceUsd=(ask+bid)/2}else if(d.markPrice){btcMarkPriceUsd=parseInt(d.markPrice)/1e6}}catch(e){console.error('BTC perp price error:',e)}
+  try{const r=await fetch('https://dlob.drift.trade/l2?marketIndex=2&marketType=perp&depth=1');const d=await r.json();if(d.asks&&d.asks[0]&&d.bids&&d.bids[0]){const ask=parseInt(d.asks[0].price)/1e6,bid=parseInt(d.bids[0].price)/1e6;ethMarkPriceUsd=(ask+bid)/2}else if(d.markPrice){ethMarkPriceUsd=parseInt(d.markPrice)/1e6}}catch(e){console.error('ETH perp price error:',e)}
+}
+
+async function fetchWalletBalance(){
+  try{
+    const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'getBalance',params:[WALLET]})});
+    const d=await r.json();walletSol=(d.result?.value||0)/1e9;
+  }catch(e){console.error('Wallet balance error:',e)}
+}
+
+async function fetchTokenBalances(){
+  gizmoTokenBalance=0;punchTokenBalance=0;bloodnutTokenBalance=0;loreguyTokenBalance=0;jawzTokenBalance=0;usdcBalance=0;
+  // Fetch from BOTH token programs (classic SPL + Token-2022)
+  const programs=['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA','TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'];
+  for(const prog of programs){
+    try{
+      const r=await fetch('https://api.mainnet-beta.solana.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        jsonrpc:'2.0',id:1,method:'getTokenAccountsByOwner',
+        params:[WALLET,{programId:prog},{encoding:'jsonParsed'}]
+      })});
+      const d=await r.json();
+      if(d.result&&d.result.value){
+        for(const acct of d.result.value){
+          const info=acct.account.data.parsed.info;
+          const mint=info.mint;
+          const amt=parseFloat(info.tokenAmount.uiAmountString||'0');
+          if(mint===GIZMO_MINT) gizmoTokenBalance=amt;
+          // PUNCH, BLOODNUT, JAWZ, TRENCH, SHELLDON — all CLOSED, 0 balance
+          if(mint===USDC_MINT) usdcBalance=amt;
+        }
+      }
+    }catch(e){console.error('Token fetch error ('+prog+'):',e)}
+  // Fallback hardcoded holdings — verified on-chain Feb 24 2026
+  if(gizmoTokenBalance===0) gizmoTokenBalance=2269327;
+  if(usdcBalance===0) usdcBalance=558.25;
+  // All other memecoins CLOSED — 0 balance
+  }
+}
+
+function fmtNum(n,dec){
+  if(n>=1e9)return(n/1e9).toFixed(2)+'B';
+  if(n>=1e6)return(n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(2)+'K';
+  return n.toFixed(dec);
+}
+
+function updateUI(){
+  const dot=document.getElementById('refreshDot');dot.classList.add('active');setTimeout(()=>dot.classList.remove('active'),1000);
+
+  document.getElementById('solBalance').textContent=walletSol.toFixed(4)+' SOL';
+  document.getElementById('solPrice').textContent='$'+solPriceUsd.toFixed(2);
+
+  const gV=gizmoTokenBalance*gizmoPriceUsd, gIU=15*solPriceUsd;
+  document.getElementById('gizmoHoldings').textContent=gizmoTokenBalance>0?fmtNum(gizmoTokenBalance,0)+' tokens':'--';
+  document.getElementById('gizmoPrice').textContent=gizmoPriceUsd>0?'$'+gizmoPriceUsd.toFixed(8):'--';
+  document.getElementById('gizmoValue').textContent=gV>0?'$'+fmtNum(gV,2):'--';
+  const gPU=gV-gIU, gPS=solPriceUsd>0?(gV/solPriceUsd)-15:0, gPP=gIU>0?((gV/gIU)-1)*100:0;
+  const gpE=document.getElementById('gizmoPnl');
+  if(gV>0){gpE.innerHTML=`<span style="color:${gPU>=0?'var(--teal)':'#ff4444'}">${gPU>=0?'+':''}${fmtNum(gPU,2)} USD (${gPP>=0?'+':''}${gPP.toFixed(1)}%)</span><br><span style="font-size:11px;color:var(--dim)">${gPS>=0?'+':''}${gPS.toFixed(2)} SOL</span>`}else{gpE.textContent='--'}
+
+  // PUNCH, BLOODNUT, JAWZ, TRENCH, SHELLDON — all CLOSED, no UI updates needed
+
+  const tMV=gV, tMI=15*solPriceUsd, tPU=tMV-tMI, tPS=solPriceUsd>0?(tMV/solPriceUsd)-15:0;
+  document.getElementById('memeValue').textContent=tMV>0?'$'+fmtNum(tMV,2):'--';
+  document.getElementById('memeValueSol').textContent=solPriceUsd>0&&tMV>0?(tMV/solPriceUsd).toFixed(2)+' SOL':'';
+  const mpE=document.getElementById('memePnl');
+  if(tMV>0){mpE.textContent=(tPU>=0?'+':'')+fmtNum(tPU,2)+' USD';mpE.className='value'+(tPU<0?' negative':'');document.getElementById('memePnlSol').textContent=(tPS>=0?'+':'')+tPS.toFixed(2)+' SOL'}else{mpE.textContent='--';mpE.className='value'}
+
+  // PERPS — SOL
+  let solPerpPnlUsd=0,btcPerpPnlUsd=0;
+  if(perpMarkPriceUsd>0){
+    const mp='$'+perpMarkPriceUsd.toFixed(2);
+    const el=document.getElementById('solPerpMark');if(el)el.textContent=mp;
+    solPerpPnlUsd=(perpMarkPriceUsd-PERP_ENTRY)*PERP_SIZE;
+    const pct=((perpMarkPriceUsd/PERP_ENTRY)-1)*100;
+    const str=(solPerpPnlUsd>=0?'+':'')+solPerpPnlUsd.toFixed(2)+' USD ('+(pct>=0?'+':'')+pct.toFixed(1)+'%)';
+    const col=solPerpPnlUsd>=0?'var(--teal)':'#ff4444';
+    const el2=document.getElementById('solPerpPnl');if(el2)el2.innerHTML=`<span style="color:${col}">${str}</span>`;
+  }
+  // PERPS — BTC
+  if(btcMarkPriceUsd>0){
+    const mp='$'+fmtNum(btcMarkPriceUsd,2);
+    const el=document.getElementById('btcPerpMark');if(el)el.textContent=mp;
+    btcPerpPnlUsd=(btcMarkPriceUsd-BTC_PERP_ENTRY)*BTC_PERP_SIZE;
+    const pct=((btcMarkPriceUsd/BTC_PERP_ENTRY)-1)*100;
+    const str=(btcPerpPnlUsd>=0?'+':'')+btcPerpPnlUsd.toFixed(2)+' USD ('+(pct>=0?'+':'')+pct.toFixed(1)+'%)';
+    const col=btcPerpPnlUsd>=0?'var(--teal)':'#ff4444';
+    const el2=document.getElementById('btcPerpPnl');if(el2)el2.innerHTML=`<span style="color:${col}">${str}</span>`;
+  }
+  // PERPS — ETH
+  let ethPerpPnlUsd=0;
+  if(ethMarkPriceUsd>0){
+    const mp='$'+fmtNum(ethMarkPriceUsd,2);
+    const el=document.getElementById('ethPerpMark');if(el)el.textContent=mp;
+    ethPerpPnlUsd=(ethMarkPriceUsd-ETH_PERP_ENTRY)*ETH_PERP_SIZE;
+    const pct=((ethMarkPriceUsd/ETH_PERP_ENTRY)-1)*100;
+    const str=(ethPerpPnlUsd>=0?'+':'')+ethPerpPnlUsd.toFixed(2)+' USD ('+(pct>=0?'+':'')+pct.toFixed(1)+'%)';
+    const col=ethPerpPnlUsd>=0?'var(--teal)':'#ff4444';
+    const el2=document.getElementById('ethPerpPnl');if(el2)el2.innerHTML=`<span style="color:${col}">${str}</span>`;
+  }
+  // Total perp PnL + Leverage + Liq Price
+  const totalPerpPnl=solPerpPnlUsd+btcPerpPnlUsd+ethPerpPnlUsd;
+  const tpEl=document.getElementById('perpTotalPnl');
+  if(tpEl){const col=totalPerpPnl>=0?'var(--teal)':'#ff4444';tpEl.innerHTML=`<span style="color:${col}">${(totalPerpPnl>=0?'+':'')}${totalPerpPnl.toFixed(2)} USD</span>`}
+  // Leverage & Liq — use total collateral (equity), not just free funds
+  const driftCollateral=93;
+  const solN=PERP_SIZE*(perpMarkPriceUsd||0), btcN=BTC_PERP_SIZE*(btcMarkPriceUsd||0), ethN=ETH_PERP_SIZE*(ethMarkPriceUsd||0);
+  const totalNotional=solN+btcN+ethN;
+  const equity=driftCollateral+totalPerpPnl;
+  const leverage=equity>0?totalNotional/equity:0;
+  const maint=totalNotional*0.05;
+  const liqDrop=0; // SOL-PERP closed, no liq price
+  const solLiq=0;
+  const levEl=document.getElementById('perpLeverage');if(levEl)levEl.textContent=leverage>0?leverage.toFixed(2)+'x':'--';
+  const liqEl=document.getElementById('perpLiqPrice');if(liqEl)liqEl.textContent=solLiq>0?'~$'+solLiq.toFixed(2):'--';
+  const eqEl=document.getElementById('perpEquity');if(eqEl){eqEl.innerHTML=`<span style="color:var(--teal)">$${equity.toFixed(2)}</span>`}
+
+  const wV=walletSol*solPriceUsd, perpVal=btcPerpPnlUsd, total=wV+tMV+usdcBalance+93+perpVal;
+  // Sanity check: if SOL price is unreasonable or total exceeds $500K, something is wrong
+  const saneTotal=(solPriceUsd>10&&solPriceUsd<1000&&total<500000)?total:0;
+  const tvE=document.getElementById('totalPortValue');if(tvE){if(saneTotal>0){const solEquiv=solPriceUsd>0?(saneTotal/solPriceUsd).toFixed(2)+' SOL':'';tvE.innerHTML='$'+fmtNum(saneTotal,2)+(solEquiv?' <span style=\"font-size:14px;color:var(--dim)\">('+solEquiv+')</span>':'')}else{tvE.textContent='--'}}
+  const sbE=document.getElementById('solBalanceHud');if(sbE)sbE.textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
+  const duE=document.getElementById('driftUsdc');if(duE)duE.textContent='$'+fmtNum(93+usdcBalance,2);
+  const now=new Date(),lbl=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  chartHistory.push({label:lbl,value:total});if(chartHistory.length>40)chartHistory.shift();
+  if(pnlChart){pnlChart.data.labels=chartHistory.map(h=>h.label);pnlChart.data.datasets[0].data=chartHistory.map(h=>h.value);pnlChart.update('none')}
+}
+
+async function refresh(){
+  await Promise.all([fetchSolPrice(),fetchDexPrices(),fetchWalletBalance(),fetchTokenBalances(),fetchPerpPrice()]);
+  updateUI();
+}
+
+// ===== LIVE STATS (CLIENT-SIDE, NO NETLIFY FUNCTION) =====
+const tradeHistory=[
+  {type:'BUY',token:'$GIZMO',sol:15,status:'HOLDING',date:'Feb 18',notes:'Core position — the namesake token. NEVER SELL.'},
+  {type:'BUY',token:'$PUNCH',sol:13,status:'HOLDING',date:'Feb 19-21',notes:'High conviction runner — $13.5M daily volume'},
+  {type:'SWAP',token:'USDC',sol:20,status:'DEPLOYED',date:'Feb 19',notes:'Swapped to USDC for Drift perp trading'},
+  {type:'PERP',token:'SOL-PERP LONG',sol:0,status:'CLOSED ❌',date:'Feb 22',notes:'15.16 SOL long @ $85.67 → partial liq to 7.04 → closed @ $83.53. PnL: ~-$30',pnl:'~-$30'},
+  {type:'PERP',token:'BTC-PERP SHORT',sol:0,status:'ACTIVE',date:'Feb 23',notes:'0.0006 BTC short @ $63,653 | SL: $65K TP: $62K'},
+  {type:'PERP',token:'BTC-PERP LONG (closed)',sol:0,status:'LOST ❌',date:'Feb 21-23',notes:'0.0029 BTC long @ $68,389 → closed @ $63,721',pnl:'-$13.54'},
+  {type:'PERP',token:'ETH-PERP LONG (closed)',sol:0,status:'LOST ❌',date:'Feb 21-23',notes:'0.075 ETH long @ $1,980 → closed @ $1,832',pnl:'-$11.09'},
+  {type:'BUY',token:'$BLOODNUT',sol:2,status:'HOLDING',date:'Feb 20',notes:'Small cap play — TP at 2x'},
+  {type:'TRADE',token:'$WINSTON',sol:5,status:'CLOSED ✅',date:'Feb 21',notes:'Bought 5 SOL → Sold 8.25 SOL. PnL: +3.25 SOL (+65%). Clean flip 🧹',pnl:'+3.25 SOL (+65%)'},
+  {type:'POLY',token:'BTC $66-68K Feb 23',sol:0,status:'LOST ❌',date:'Feb 22',notes:'Polymarket: 97 YES @ $0.41 = $39.77. BTC closed ~$63.7K, outside range.',pnl:'-$39.77'},
+  {type:'POLY',token:'ETH $1.9-2K Feb 23',sol:0,status:'LOST ❌',date:'Feb 22',notes:'Polymarket: 58 YES @ $0.60 = $34.80. ETH closed ~$1,830, outside range.',pnl:'-$34.80'},
+  {type:'POLY',token:'🏀 Nuggets ML',sol:0,status:'LOST ❌',date:'Feb 22',notes:'Polymarket: 25 DEN YES @ $0.56 = $14. Warriors won 128-117.',pnl:'-$14.00'},
+  {type:'POLY',token:'SOL $80-90 Feb 23',sol:0,status:'LOST ❌',date:'Feb 22',notes:'Polymarket: 29 YES @ $0.85 = $24.65. SOL closed ~$76.8, outside range.',pnl:'-$24.65'},
+  {type:'TRADE',token:'$LOREGUY',sol:1,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 1 SOL @ $27K MC → Sold at $14.7K MC. PnL: -0.574 SOL (-57.4%). SL hit.',pnl:'-0.574 SOL (-57.4%)'},
+  {type:'TRADE',token:'$ORAMAMA',sol:5,status:'CLOSED ❌',date:'Feb 22',notes:'Bought 5 SOL @ 800K MC → Sold 2.53 SOL @ 413K MC. PnL: -2.47 SOL (-49%). SL hit.',pnl:'-2.47 SOL (-49%)'},
+  {type:'BUY',token:'$TRENCH',sol:3,status:'HOLDING (partial)',date:'Feb 21-22',notes:'Bought 3 SOL → partial sold 2.15 SOL → holding 93K tokens remainder'},
+  {type:'BUY',token:'$JAWZ 🦈',sol:3,status:'HOLDING ✅',date:'Feb 22',notes:'Bought $248 at $181K MC. Currently up ~3x. Only winning trade.'},
+  {type:'BUY',token:'$SHELLDON 🐢',sol:2,status:'HOLDING ✅',date:'Feb 24',notes:'KOL sniper signal (clukz 7 SOL entry). Autonomous trade — first from KOL tracker.'}
+];
+function updateStats(){
+  const sp=solPriceUsd||0;
+  document.getElementById('statsLastUpdated').textContent='Updated '+new Date().toLocaleTimeString();
+
+  const gV=gizmoTokenBalance*gizmoPriceUsd;
+  const btcPerpPnl=btcMarkPriceUsd>0?(btcMarkPriceUsd-BTC_PERP_ENTRY)*BTC_PERP_SIZE:0;
+  const perpPnl=btcPerpPnl;
+  const total=walletSol*sp+gV+usdcBalance+93+perpPnl;
+
+  document.getElementById('statsTotalValue').textContent=total>0?'$'+fmtNum(total,2):'--';
+  document.getElementById('statsDriftUsdc').textContent='$'+fmtNum(93+usdcBalance,2);
+  document.getElementById('statsSolBal').textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
+  document.getElementById('statsWinRate').textContent='1W 8L (11.1%)';
+
+  // Positions
+  const perps=[
+    {sym:'BTC',mark:btcMarkPriceUsd,entry:BTC_PERP_ENTRY,size:BTC_PERP_SIZE,dir:'LONG'},
+    {sym:'ETH',mark:ethMarkPriceUsd,entry:ETH_PERP_ENTRY,size:ETH_PERP_SIZE,dir:'LONG'}
+  ];
+  let posHTML='';
+  for(const p of perps){
+    if(!p.mark||p.mark<=0)continue;
+    const pnl=(p.mark-p.entry)*p.size;const pct=((p.mark/p.entry)-1)*100;
+    const col=pnl>=0?'var(--teal)':'#ff4444';
+    const dirCol=p.dir==='LONG'?'var(--teal)':'#ff4444';
+    const dirArrow=p.dir==='LONG'?'▲':'▼';
+    posHTML+=`<div class="pos-card"><div class="live-dot"></div><h4 style="color:${dirCol}">${p.sym}-PERP — ${p.dir} ${dirArrow}</h4>
+      <div class="pos-row"><span class="dim">Size</span><span>${p.size} ${p.sym}</span></div>
+      <div class="pos-row"><span class="dim">Entry</span><span>$${fmtNum(p.entry,2)}</span></div>
+      <div class="pos-row"><span class="dim">Mark</span><span>$${fmtNum(p.mark,2)}</span></div>
+      <div class="pos-row"><span class="dim">P&L</span><span style="color:${col}">${pnl>=0?'+':''}${pnl.toFixed(2)} USD (${pct>=0?'+':''}${pct.toFixed(1)}%)</span></div></div>`;
+  }
+  const tokens=[
+    {name:'$GIZMO',bal:gizmoTokenBalance,price:gizmoPriceUsd,cost:15}
+  ];
+  for(const t of tokens){
+    if(!t.bal||t.bal<=0)continue;
+    const val=t.bal*t.price;const costUsd=t.cost*sp;const pnl=val-costUsd;const col=pnl>=0?'var(--teal)':'#ff4444';
+    posHTML+=`<div class="pos-card"><div class="live-dot"></div><h4>${t.name}</h4>
+      <div class="pos-row"><span class="dim">Holdings</span><span>${fmtNum(t.bal,0)} tokens</span></div>
+      <div class="pos-row"><span class="dim">Price</span><span>$${t.price>0.001?t.price.toFixed(4):t.price.toFixed(8)}</span></div>
+      <div class="pos-row"><span class="dim">Value</span><span>$${fmtNum(val,2)}</span></div>
+      <div class="pos-row"><span class="dim">P&L</span><span style="color:${col}">${pnl>=0?'+':''}${fmtNum(pnl,2)} USD</span></div></div>`;
+  }
+  document.getElementById('statsPositions').innerHTML=posHTML||'<div class="pos-card"><h4 style="color:var(--dim)">No positions</h4></div>';
+
+  // Trade history
+  let thHTML='';
+  for(const t of tradeHistory){
+    const statusCol=t.status==='ACTIVE'?'var(--teal)':t.status==='HOLDING'?'var(--purple)':'var(--dim)';
+    const isLive=(t.status.startsWith('ACTIVE')||t.status.startsWith('HOLDING')||t.status.startsWith('OPEN')||t.status.startsWith('DEPLOYED'));
+    const liveDot=isLive?'<div class="live-dot"></div>':'';
+    const pnlRow=t.pnl?`<div class="pos-row"><span class="dim">P&L</span><span style="color:var(--teal);font-weight:bold">${t.pnl}</span></div>`:'';
+    const isLong=t.token.includes('LONG');
+    const isShort=t.token.includes('SHORT');
+    const titleCol=isLong?'color:var(--teal)':isShort?'color:#ff4444':'';
+    thHTML+=`<div class="pos-card">${liveDot}<h4 ${titleCol?'style="'+titleCol+'"':''}>${t.token} — ${t.type}</h4>
+      <div class="pos-row"><span class="dim">Date</span><span>${t.date}</span></div>
+      ${t.sol?`<div class="pos-row"><span class="dim">Amount</span><span>${t.sol} SOL</span></div>`:''}
+      <div class="pos-row"><span class="dim">Status</span><span style="color:${statusCol}">${t.status}</span></div>
+      ${pnlRow}
+      <div class="pos-row"><span class="dim">Notes</span><span style="font-size:11px">${t.notes}</span></div></div>`;
+  }
+  document.getElementById('statsTradeHistory').innerHTML=thHTML;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{initChart();refresh().then(()=>updateStats());setInterval(()=>{refresh().then(()=>updateStats())},15000)});
+</script>
+</body>
+</html>
