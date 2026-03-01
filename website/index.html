@@ -1468,7 +1468,7 @@ const allTrades=[
   {n:2,date:'Feb 21',token:'SOL-PERP',action:'LONG',amount:'15.16 SOL @ $85.67',result:'Partial liquidation + closed',pnl:'~-$30 ❌',color:'red',ca:''},
   {n:1,date:'Feb 21',token:'$KOL',action:'BUY→SELL',amount:'@ $156K MC',result:'SL hit',pnl:'-0.5 SOL ❌',color:'red',ca:''},
 ];
-const TRADES_PER_PAGE=10;
+const TRADES_PER_PAGE=10;let tradeLogUserClicked=false;
 function renderTradePage(page){
   const total=allTrades.length;
   const pages=Math.ceil(total/TRADES_PER_PAGE);
@@ -1499,7 +1499,8 @@ function renderTradePage(page){
     </div>`;
   }
   document.getElementById('tradeLogContainer').innerHTML=`<div class="positions" style="grid-template-columns:1fr">${html}</div>`;
-  document.getElementById('tradeLogContainer').scrollIntoView({behavior:'smooth',block:'start'});
+  if(tradeLogUserClicked)document.getElementById('tradeLogContainer').scrollIntoView({behavior:'smooth',block:'start'});
+  tradeLogUserClicked=true;
 }
 
 function copyWallet(){navigator.clipboard.writeText('8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump');const h=document.querySelector('.copy-hint');h.textContent='Copied!';setTimeout(()=>h.textContent='click to copy CA',2000)}
