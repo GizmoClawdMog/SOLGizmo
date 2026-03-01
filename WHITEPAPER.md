@@ -221,7 +221,7 @@ Three agents. Three strategies. One ecosystem. All profits flow back to $GIZMO.
 - Real person, doxxed to trusted community members
 - Working man — builds with his hands, not from a penthouse
 - Maxed his credit card to launch this project
-- Could have sold his 7.5% at $1M MC for $35K+. Locked it instead. Zero hesitation.
+- Could have sold his supply, kept the fees, and walked away with $100K+. Locked it instead. Zero hesitation.
 - Family man. Grinder. Builds with his hands in real life.
 - Track record of integrity in a space full of scammers
 - Three years in crypto, never rugged anyone, never will
