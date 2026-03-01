@@ -1350,6 +1350,38 @@ setInterval(()=>{tvI=(tvI+1)%tvCh.length;const e=document.getElementById('tvChan
 //   Feb28: FuckIsrael +10.59, Browt +3.33, Crashout -5, Hippobean -1, BELLATOR -0.05-0.79,
 //   UVI -0.39, OEF +0.24→trapped, Peace +0.077, KINGS -1, ANTHROP -0.38, bags +1.5
 // All time adds: WINSTON +3.25, KOL -0.5, LOREGUY -0.7, SOL-PERP -0.35, BLOODNUT -2, TRENCH -4
+// Trade PnL timeline for chart (chronological, each entry = one trade result in SOL)
+const tradePnlTimeline=[
+  // Feb 21
+  {date:'Feb 21',pnl:-0.5,token:'KOL'},{date:'Feb 21',pnl:-0.2,token:'SOL-PERP'},{date:'Feb 21',pnl:3.25,token:'WINSTON'},{date:'Feb 21',pnl:-0.7,token:'LOREGUY'},
+  // Feb 22
+  {date:'Feb 22',pnl:-2,token:'BLOODNUT'},{date:'Feb 22',pnl:-3,token:'TRENCH v1'},{date:'Feb 22',pnl:-0.85,token:'TRENCH v2'},{date:'Feb 22',pnl:-2.47,token:'ORAMAMA'},{date:'Feb 22',pnl:-3,token:'JAWZ'},
+  // Feb 23
+  {date:'Feb 23',pnl:-2,token:'SHELLDON'},
+  // Feb 25
+  {date:'Feb 25',pnl:0.025,token:'FOMO#1'},{date:'Feb 25',pnl:0.025,token:'FOMO#2'},{date:'Feb 25',pnl:-0.5,token:'BINGUS'},{date:'Feb 25',pnl:-0.16,token:'DIOGE'},{date:'Feb 25',pnl:0.025,token:'JANESTREET'},{date:'Feb 25',pnl:0.025,token:'NIRE'},{date:'Feb 25',pnl:0.025,token:'GORK'},
+  // Feb 28
+  {date:'Feb 28',pnl:10.59,token:'FuckIsrael'},{date:'Feb 28',pnl:3.33,token:'Browt'},{date:'Feb 28',pnl:-5,token:'Crashout'},{date:'Feb 28',pnl:-1,token:'Hippobean'},{date:'Feb 28',pnl:-0.05,token:'BELLATOR#1'},{date:'Feb 28',pnl:-0.79,token:'BELLATOR#2'},{date:'Feb 28',pnl:-0.39,token:'UVI'},{date:'Feb 28',pnl:0.24,token:'OEF'},{date:'Feb 28',pnl:-1,token:'KINGS'},{date:'Feb 28',pnl:0.077,token:'Peace'},{date:'Feb 28',pnl:-0.38,token:'ANTHROP'}
+];
+const pnlPeriodDates={'1d':[],'7d':['Feb 22','Feb 23','Feb 24','Feb 25','Feb 26','Feb 27','Feb 28'],'30d':['Feb 21','Feb 22','Feb 23','Feb 24','Feb 25','Feb 26','Feb 27','Feb 28'],'all':['Feb 21','Feb 22','Feb 23','Feb 24','Feb 25','Feb 26','Feb 27','Feb 28']};
+function getPnlChartData(period){
+  const dates=pnlPeriodDates[period];
+  const filtered=tradePnlTimeline.filter(t=>dates.includes(t.date));
+  let cumulative=0;const labels=[];const data=[];
+  for(const t of filtered){cumulative+=t.pnl;labels.push(t.token);data.push(parseFloat(cumulative.toFixed(2)))}
+  return {labels,data};
+}
+function updatePnlChart(period){
+  if(!pnlChart)return;
+  const cd=getPnlChartData(period);
+  pnlChart.data.labels=cd.labels;
+  pnlChart.data.datasets[0].data=cd.data;
+  pnlChart.data.datasets[0].label='Cumulative P&L (SOL)';
+  pnlChart.data.datasets[0].borderColor=cd.data.length>0&&cd.data[cd.data.length-1]>=0?'#14F195':'#ff4444';
+  pnlChart.data.datasets[0].backgroundColor=cd.data.length>0&&cd.data[cd.data.length-1]>=0?'rgba(20,241,149,0.1)':'rgba(255,68,68,0.1)';
+  pnlChart.options.scales.y.ticks.callback=v=>v.toFixed(1)+' SOL';
+  pnlChart.update('none');
+}
 const pnlData={
   '1d':{pnl:0,trades:0,wins:0,label:'1 DAY P&L'},
   '7d':{pnl:-8.23,trades:24,wins:9,label:'7 DAY P&L'},
@@ -1369,6 +1401,7 @@ function setPnlPeriod(p){
   const btnId=p==='all'?'pnlAll':'pnl'+p;
   const active=document.getElementById(btnId);
   if(active){active.style.background='var(--teal)';active.style.color='#000'}
+  updatePnlChart(p);
 }
 document.addEventListener('DOMContentLoaded',()=>{
   setPnlPeriod('1d');renderTradePage(1);
@@ -1460,10 +1493,11 @@ function copyWallet(){navigator.clipboard.writeText('8HGer4vRWZMu5MUYU7ACPb4uanK
 function copyDonation(){navigator.clipboard.writeText('CfAW3eYVZJDGnzqme8NNQQYyDYHBL3hKMPkPx13qMSWd');const h=document.getElementById('donationHint');h.textContent='Copied!';h.style.color='var(--teal)';setTimeout(()=>{h.textContent='click to copy address';h.style.color='var(--dim)'},2000)}
 
 // ===== CHART =====
-let pnlChart;const chartHistory=[];
+let pnlChart;
 function initChart(){
   const ctx=document.getElementById('pnlChart').getContext('2d');
-  pnlChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Portfolio Value (USD)',data:[],borderColor:'#14F195',backgroundColor:'rgba(20,241,149,0.1)',fill:true,tension:.4,pointRadius:0,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{ticks:{color:'#666',font:{size:9},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.05)'}}}}});
+  pnlChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Cumulative P&L (SOL)',data:[],borderColor:'#14F195',backgroundColor:'rgba(20,241,149,0.1)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'#14F195',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(2)+' SOL'}}},scales:{x:{ticks:{color:'#555',font:{size:8},maxRotation:45},grid:{display:false}},y:{ticks:{color:'#666',font:{size:9},callback:v=>v.toFixed(1)+' SOL'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
+  updatePnlChart('1d');
 }
 
 // ===== LIVE DATA =====
@@ -1629,8 +1663,7 @@ function updateUI(){
   const sbE=document.getElementById('solBalanceHud');if(sbE)sbE.textContent=walletSol>0?walletSol.toFixed(2)+' SOL':'--';
   const duE=document.getElementById('driftUsdc');if(duE)duE.textContent='$'+fmtNum(93+usdcBalance,2);
   const now=new Date(),lbl=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  chartHistory.push({label:lbl,value:total});if(chartHistory.length>40)chartHistory.shift();
-  if(pnlChart){pnlChart.data.labels=chartHistory.map(h=>h.label);pnlChart.data.datasets[0].data=chartHistory.map(h=>h.value);pnlChart.update('none')}
+  // Chart is now driven by P&L period selector, not live updates
 }
 
 async function refresh(){
