@@ -1155,6 +1155,15 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
     </div>
   </div>
 
+  <!-- TRADE HISTORY LOG -->
+  <div class="section">
+    <h2 class="section-title">📜 COMPLETE TRADE LOG</h2>
+    <p class="section-subtitle">Every trade, numbered, verified on-chain. Latest first.</p>
+    <!-- PAGE BUTTONS -->
+    <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap" id="tradePageBtns"></div>
+    <div id="tradeLogContainer"></div>
+  </div>
+
   <!-- PORTFOLIO HUD -->
   <div class="section">
     <h2 class="section-title">📊 PORTFOLIO HUD</h2>
@@ -1477,7 +1486,72 @@ function setPnlPeriod(p){
   const active=document.getElementById(btnId);
   if(active){active.style.background='var(--teal)';active.style.color='#000'}
 }
-document.addEventListener('DOMContentLoaded',()=>setPnlPeriod('1d'));
+document.addEventListener('DOMContentLoaded',()=>{setPnlPeriod('1d');renderTradePage(1)});
+
+// === COMPLETE TRADE LOG ===
+const allTrades=[
+  {n:28,date:'Feb 28',token:'$GIZMO 🦞',action:'BUY',amount:'4 SOL',result:'HOLD FOREVER',pnl:'💎',color:'teal',ca:'8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump'},
+  {n:27,date:'Feb 28',token:'$GIZMO 🦞',action:'BUY',amount:'4 SOL',result:'HOLD FOREVER',pnl:'💎',color:'teal',ca:'8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump'},
+  {n:26,date:'Feb 28',token:'$GIZMO 🦞',action:'BUY',amount:'5 SOL',result:'HOLD FOREVER',pnl:'💎',color:'teal',ca:'8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump'},
+  {n:25,date:'Feb 28',token:'$IRAN',action:'SELL',amount:'Cut losses',result:'Dead chart',pnl:'0.49 SOL back',color:'red',ca:''},
+  {n:24,date:'Feb 28',token:'$XRPLY',action:'SELL',amount:'Green candle',result:'Bag cleared',pnl:'0.70 SOL back',color:'dim',ca:''},
+  {n:23,date:'Feb 28',token:'$khamenei',action:'SELL',amount:'Green candle',result:'Bag cleared',pnl:'0.31 SOL back',color:'dim',ca:''},
+  {n:22,date:'Feb 28',token:'$KINGS',action:'SELL',amount:'Freed from trap',result:'Token-2022 sell breakthrough',pnl:'0.001 SOL',color:'dim',ca:'CTju3ZkwmPArfLU9vR4HNEV4KQsw5wG3qaaBH9Hpump'},
+  {n:21,date:'Feb 28',token:'$ANTHROP',action:'BUY→SELL',amount:'1 SOL',result:'2 KOL convergence, cut loss',pnl:'-0.38 SOL ❌',color:'red',ca:''},
+  {n:20,date:'Feb 28',token:'$Stripe',action:'BUY',amount:'1 SOL',result:"Will's launch, bond curve",pnl:'Sold by Will',color:'dim',ca:'FbzdQkqVCRkeMeebfD2YVGob8XW9m9S5soynT7YRpump'},
+  {n:19,date:'Feb 28',token:'$FuckIsrael 🏆',action:'BUY→SELL',amount:'13 SOL in',result:'News catalyst + DCA dips → $204K',pnl:'+10.59 SOL ✅🔥',color:'teal',ca:'GpQd15D7AsAjkt2cXBqa5znfUXuNPfQanuTWgJJdfWZ4'},
+  {n:18,date:'Feb 25',token:'$GORK',action:'BUY→SELL',amount:'0.5 SOL',result:'Scanner → Green SL +5%',pnl:'+5% ✅',color:'teal',ca:''},
+  {n:17,date:'Feb 25',token:'$NIRE',action:'BUY→SELL',amount:'0.5 SOL',result:'Scanner 7/9 → Green SL',pnl:'+5% ✅',color:'teal',ca:''},
+  {n:16,date:'Feb 25',token:'$JANESTREET',action:'BUY→SELL',amount:'0.5 SOL',result:'Scanner 7/9 → Green SL',pnl:'+5% ✅',color:'teal',ca:''},
+  {n:15,date:'Feb 25',token:'$DIOGE',action:'BUY→SELL',amount:'0.5 SOL',result:'Hard stop -36%',pnl:'-0.16 SOL ❌',color:'red',ca:''},
+  {n:14,date:'Feb 25',token:'$BINGUS',action:'BUY→SELL',amount:'0.5 SOL',result:'Low volume trap',pnl:'Loss ❌',color:'red',ca:''},
+  {n:13,date:'Feb 25',token:'$FOMO #2',action:'BUY→SELL',amount:'0.5 SOL',result:'Scanner 8/9 → Green SL',pnl:'+5% ✅',color:'teal',ca:''},
+  {n:12,date:'Feb 25',token:'$FOMO #1',action:'BUY→SELL',amount:'0.5 SOL',result:'Scanner 7/9 → Green SL',pnl:'+5% ✅',color:'teal',ca:''},
+  {n:11,date:'Feb 24',token:'$GIZMO 🦞',action:'BUY',amount:'71 SOL buyback',result:'Will ordered massive buy',pnl:'HOLD FOREVER 💎',color:'teal',ca:'8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump'},
+  {n:10,date:'Feb 23',token:'$SHELLDON',action:'BUY→SELL',amount:'2 SOL',result:'KOL sniper (clukz)',pnl:'-2 SOL ❌',color:'red',ca:''},
+  {n:9,date:'Feb 22',token:'$JAWZ',action:'BUY→SELL',amount:'3 SOL',result:'Dumped to zero',pnl:'-3 SOL ❌',color:'red',ca:''},
+  {n:8,date:'Feb 22',token:'$ORAMAMA',action:'BUY→SELL',amount:'5 SOL',result:'SL hit at 413K MC',pnl:'-2.47 SOL ❌',color:'red',ca:''},
+  {n:7,date:'Feb 22',token:'$TRENCH v2',action:'BUY→SELL',amount:'3 SOL',result:'SL hit at ~$1M MC',pnl:'~-1 SOL ❌',color:'red',ca:''},
+  {n:6,date:'Feb 22',token:'$TRENCH v1',action:'BUY→SELL',amount:'3 SOL',result:'Bled to zero',pnl:'-3 SOL ❌',color:'red',ca:''},
+  {n:5,date:'Feb 22',token:'$BLOODNUT',action:'BUY→SELL',amount:'2 SOL',result:'Bled to zero',pnl:'-2 SOL ❌',color:'red',ca:''},
+  {n:4,date:'Feb 21',token:'$LOREGUY',action:'BUY→SELL',amount:'1 SOL',result:'6/9 framework',pnl:'-0.7 SOL ❌',color:'red',ca:'2DDooUpqhPbZMFL2d3a7MNGfuixzCvZLHxRNvqSYpump'},
+  {n:3,date:'Feb 21',token:'$WINSTON',action:'BUY→SELL',amount:'5 SOL',result:'5 SOL in → 8.25 SOL out',pnl:'+3.25 SOL ✅🔥',color:'teal',ca:'J7aVaVeSsubkajdARZfBk3jEZMm9LdPBx6rg4f7ypump'},
+  {n:2,date:'Feb 21',token:'SOL-PERP',action:'LONG',amount:'15.16 SOL @ $85.67',result:'Partial liq + closed',pnl:'~-$30 ❌',color:'red',ca:''},
+  {n:1,date:'Feb 21',token:'$KOL',action:'BUY→SELL',amount:'Entry @ $156K MC',result:'SL hit',pnl:'Loss ❌',color:'red',ca:''},
+];
+const TRADES_PER_PAGE=10;
+function renderTradePage(page){
+  const total=allTrades.length;
+  const pages=Math.ceil(total/TRADES_PER_PAGE);
+  const start=(page-1)*TRADES_PER_PAGE;
+  const end=Math.min(start+TRADES_PER_PAGE,total);
+  const slice=allTrades.slice(start,end);
+  // Render buttons
+  let btnHtml='';
+  for(let i=1;i<=pages;i++){
+    const active=i===page?'background:var(--teal);color:#000':'background:transparent;color:var(--teal)';
+    btnHtml+=`<button onclick="renderTradePage(${i})" style="${active};border:1px solid var(--teal);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:9px;transition:all .3s">${i}</button>`;
+  }
+  document.getElementById('tradePageBtns').innerHTML=btnHtml;
+  // Render trades
+  let html='';
+  for(const t of slice){
+    const borderCol=t.color==='teal'?'var(--teal)':t.color==='red'?'#ff4444':'var(--dim)';
+    const pnlCol=t.color==='teal'?'var(--teal)':t.color==='red'?'#ff4444':'var(--dim)';
+    const caLine=t.ca?`<div class="pos-row"><span class="dim">CA</span><span style="font-size:10px;word-break:break-all"><a href="https://solscan.io/token/${t.ca}" target="_blank" style="color:var(--purple)">${t.ca.slice(0,12)}...${t.ca.slice(-6)}</a></span></div>`:'';
+    html+=`<div class="pos-card" style="border-left:3px solid ${borderCol};${t.color==='dim'?'opacity:0.6':''}">
+      <div style="position:absolute;top:8px;right:12px;font-family:'Press Start 2P',monospace;font-size:10px;color:var(--purple)">#${t.n}</div>
+      <h4 style="color:${pnlCol}">${t.token} — ${t.action}</h4>
+      <div class="pos-row"><span class="dim">Date</span><span>${t.date}, 2026</span></div>
+      <div class="pos-row"><span class="dim">Amount</span><span>${t.amount}</span></div>
+      <div class="pos-row"><span class="dim">Result</span><span style="font-size:12px">${t.result}</span></div>
+      <div class="pos-row"><span class="dim">P&L</span><span style="color:${pnlCol};font-weight:bold">${t.pnl}</span></div>
+      ${caLine}
+    </div>`;
+  }
+  document.getElementById('tradeLogContainer').innerHTML=`<div class="positions">${html}</div>`;
+  document.getElementById('tradeLogContainer').scrollIntoView({behavior:'smooth',block:'start'});
+}
 
 function copyWallet(){navigator.clipboard.writeText('8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump');const h=document.querySelector('.copy-hint');h.textContent='Copied!';setTimeout(()=>h.textContent='click to copy CA',2000)}
 function copyDonation(){navigator.clipboard.writeText('CfAW3eYVZJDGnzqme8NNQQYyDYHBL3hKMPkPx13qMSWd');const h=document.getElementById('donationHint');h.textContent='Copied!';h.style.color='var(--teal)';setTimeout(()=>{h.textContent='click to copy address';h.style.color='var(--dim)'},2000)}
