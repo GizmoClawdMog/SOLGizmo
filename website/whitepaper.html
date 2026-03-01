@@ -91,7 +91,7 @@ footer a{color:var(--teal);margin:0 10px}
 <div class="container">
 
 <a href="index.html" class="back-link">← Back to GIZMO</a>
-<div id="vibePrompt" onclick="startBGM();this.style.display='none'" style="position:fixed;top:15px;right:15px;background:var(--dark2);border:1px solid rgba(20,241,149,.3);border-radius:10px;padding:10px 18px;cursor:pointer;z-index:999;font-size:13px;color:var(--teal);transition:opacity .5s;animation:vibePulse 2s ease-in-out infinite alternate">🔊 Click to vibe</div>
+<div id="vibePrompt" onclick="toggleBGM()" style="position:fixed;top:15px;right:15px;background:var(--dark2);border:1px solid rgba(20,241,149,.3);border-radius:10px;padding:10px 18px;cursor:pointer;z-index:999;font-size:13px;color:var(--teal);transition:opacity .5s;animation:vibePulse 2s ease-in-out infinite alternate">🔊 Click to vibe</div>
 
 <h1>$GIZMO Whitepaper</h1>
 <p class="subtitle">Humanity's Best Friend</p>
@@ -419,20 +419,26 @@ footer a{color:var(--teal);margin:0 10px}
 </footer>
 
 <script>
-let bgmStarted=false;
+let bgmAudio=null;
+let bgmPlaying=false;
 function startBGM(){
-  if(bgmStarted)return;
-  bgmStarted=true;
-  const a=new Audio('bgm.mp3');
-  a.loop=true;a.volume=0.3;
-  a.play().then(()=>{const p=document.getElementById('vibePrompt');if(p)p.style.display='none';}).catch(()=>{bgmStarted=false;});
+  if(bgmAudio)return;
+  bgmAudio=new Audio('bgm.mp3');
+  bgmAudio.loop=true;bgmAudio.volume=0.3;
+  bgmAudio.play().then(()=>{
+    bgmPlaying=true;
+    const p=document.getElementById('vibePrompt');
+    if(p){p.textContent='🔇 Mute';p.style.animation='none';}
+  }).catch(()=>{bgmAudio=null;});
 }
-// Try autoplay immediately
+function toggleBGM(){
+  if(!bgmAudio){startBGM();return;}
+  if(bgmPlaying){bgmAudio.pause();bgmPlaying=false;document.getElementById('vibePrompt').textContent='🔊 Play';}
+  else{bgmAudio.play();bgmPlaying=true;document.getElementById('vibePrompt').textContent='🔇 Mute';}
+}
 startBGM();
-// Fallback: play on any user interaction
-document.addEventListener('click',startBGM);
-document.addEventListener('scroll',startBGM);
-document.addEventListener('keydown',startBGM);
+document.addEventListener('scroll',startBGM,{once:true});
+document.addEventListener('keydown',startBGM,{once:true});
 </script>
 </body>
 </html>
