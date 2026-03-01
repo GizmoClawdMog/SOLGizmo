@@ -1024,7 +1024,7 @@ footer{border-top:1px solid #2a2a3a;padding:30px 16px;text-align:center;max-widt
       <div class="pos-card" style="border-left:3px solid var(--teal)">
         <div style="position:absolute;top:8px;right:12px;width:8px;height:8px;background:var(--teal);border-radius:50%;box-shadow:0 0 6px var(--teal);animation:pulse 2s infinite"></div>
         <h4>$GIZMO 🦞 — HOLD FOREVER</h4>
-        <div class="pos-row"><span class="dim">Invested</span><span>13 SOL total (5 + 4 + 4 SOL buys)</span></div>
+        <div class="pos-row"><span class="dim">Invested</span><span>90 SOL total (71 + 6 + 5 + 4 + 4 SOL buys)</span></div>
         <div class="pos-row"><span class="dim">Holdings</span><span id="gizmoHoldings">~1.1M tokens</span></div>
         <div class="pos-row"><span class="dim">Price</span><span id="gizmoPrice">--</span></div>
         <div class="pos-row"><span class="dim">Value</span><span id="gizmoValue">--</span></div>
@@ -1566,7 +1566,7 @@ function updateUI(){
   document.getElementById('solBalance').textContent=walletSol.toFixed(4)+' SOL';
   document.getElementById('solPrice').textContent='$'+solPriceUsd.toFixed(2);
 
-  const gV=gizmoTokenBalance*gizmoPriceUsd, gIU=13*solPriceUsd;
+  const gV=gizmoTokenBalance*gizmoPriceUsd, gIU=90*solPriceUsd;
   document.getElementById('gizmoHoldings').textContent=gizmoTokenBalance>0?fmtNum(gizmoTokenBalance,0)+' tokens':'--';
   document.getElementById('gizmoPrice').textContent=gizmoPriceUsd>0?'$'+gizmoPriceUsd.toFixed(8):'--';
   document.getElementById('gizmoValue').textContent=gV>0?'$'+fmtNum(gV,2):'--';
@@ -1649,7 +1649,7 @@ async function refresh(){
 
 // ===== LIVE STATS (CLIENT-SIDE, NO NETLIFY FUNCTION) =====
 const tradeHistory=[
-  {type:'BUY',token:'$GIZMO',sol:15,status:'HOLDING',date:'Feb 18',notes:'Core position — the namesake token. NEVER SELL.'},
+  {type:'BUY',token:'$GIZMO',sol:90,status:'HOLDING',date:'Feb 18-28',notes:'Core position — 71+6+5+4+4 SOL across multiple buys. NEVER SELL.'},
   {type:'BUY',token:'$PUNCH',sol:13,status:'HOLDING',date:'Feb 19-21',notes:'High conviction runner — $13.5M daily volume'},
   {type:'SWAP',token:'USDC',sol:20,status:'DEPLOYED',date:'Feb 19',notes:'Swapped to USDC for Drift perp trading'},
   {type:'PERP',token:'SOL-PERP LONG',sol:0,status:'CLOSED ❌',date:'Feb 22',notes:'15.16 SOL long @ $85.67 → partial liq to 7.04 → closed @ $83.53. PnL: ~-$30',pnl:'~-$30'},
@@ -1701,7 +1701,7 @@ function updateStats(){
       <div class="pos-row"><span class="dim">P&L</span><span style="color:${col}">${pnl>=0?'+':''}${pnl.toFixed(2)} USD (${pct>=0?'+':''}${pct.toFixed(1)}%)</span></div></div>`;
   }
   const tokens=[
-    {name:'$GIZMO',bal:gizmoTokenBalance,price:gizmoPriceUsd,cost:15}
+    {name:'$GIZMO',bal:gizmoTokenBalance,price:gizmoPriceUsd,cost:90}
   ];
   for(const t of tokens){
     if(!t.bal||t.bal<=0)continue;
