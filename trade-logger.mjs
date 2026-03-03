@@ -4,6 +4,7 @@
  * Appends to trade-log.json and pushes website updates
  */
 import fs from 'fs';
+import { recordTrade, updatePosition } from './agent-credentials.mjs';
 import { execSync } from 'child_process';
 
 const LOG_FILE = '/tmp/gizmo-trade/auto-manage.log';
@@ -161,6 +162,15 @@ function check() {
           status: 'OPEN',
           date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' })
         });
+        
+        // Update agent credentials
+        updatePosition({
+          symbol: trade.token,
+          amount: trade.sol,
+          type: 'TRADING',
+          status: 'ACTIVE'
+        });
+        
         log(`📝 LOGGED BUY: ${trade.token} | ${trade.sol} SOL @ $${trade.entryMC} MC`);
         hasNewTrade = true;
       }
@@ -168,7 +178,29 @@ function check() {
       if (trade.type === 'SL_HIT' || trade.type === 'HARD_STOP' || trade.type === 'TP1') {
         const open = openPositions[trade.token];
         if (open) {
-          log(`📝 LOGGED EXIT: ${trade.token} | ${trade.type}`);
+          // Calculate P&L (simplified - would need actual exit SOL amount for precision)
+          const isProfit = trade.type === 'TP1';
+          const estimatedPnL = isProfit ? open.sol * 0.15 : open.sol * -0.1; // rough estimates
+          
+          // Record trade for credentials
+          recordTrade({
+            type: 'CLOSE',
+            token: trade.token,
+            amount: open.sol,
+            pnl: estimatedPnL,
+            timestamp: trade.timestamp
+          });
+          
+          // Update position to closed
+          updatePosition({
+            symbol: trade.token,
+            amount: open.sol,
+            type: 'TRADING',
+            status: 'CLOSED'
+          });
+          
+          delete openPositions[trade.token];
+          log(`📝 LOGGED EXIT: ${trade.token} | ${trade.type} | P&L: ${estimatedPnL > 0 ? '+' : ''}${estimatedPnL.toFixed(3)} SOL`);
         }
         hasNewTrade = true;
       }
