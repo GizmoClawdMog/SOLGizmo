@@ -7,7 +7,8 @@ const keypair = Keypair.fromSecretKey(bs58.decode(walletData.secretKey));
 // Fallback RPC chain: env override → Helius → PublicNode
 const RPC_CHAIN = [
   process.env.RPC_URL,
-  `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`,
+  'https://api.mainnet-beta.solana.com',
+  'https://rpc.ankr.com/solana',
   'https://solana.publicnode.com'
 ].filter(Boolean);
 let connection;
@@ -60,7 +61,7 @@ async function main() {
 
   console.log(`Selling ${sellAmount} tokens (${Number(sellAmount) / (10 ** balance.decimals)} units) → SOL...`);
 
-  const quoteResp = await fetch(`https://lite-api.jup.ag/swap/v1/quote?inputMint=${TOKEN}&outputMint=${SOL_MINT}&amount=${sellAmount}&slippageBps=1500`);
+  const quoteResp = await fetch(`https://lite-api.jup.ag/swap/v1/quote?inputMint=${TOKEN}&outputMint=${SOL_MINT}&amount=${sellAmount}&slippageBps=1500`, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   const quote = await quoteResp.json();
   if (quote.error) throw new Error(quote.error);
   
@@ -69,7 +70,7 @@ async function main() {
 
   const swapResp = await fetch('https://lite-api.jup.ag/swap/v1/swap', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0' },
     body: JSON.stringify({
       quoteResponse: quote,
       userPublicKey: keypair.publicKey.toBase58(),
@@ -78,8 +79,9 @@ async function main() {
       prioritizationFeeLamports: { autoMultiplier: 3 }
     })
   });
-  if (!swapResp.ok) throw new Error('Swap failed: ' + await swapResp.text());
-  const { swapTransaction } = await swapResp.json();
+  const swapText = await swapResp.text();
+  if (!swapText.includes('swapTransaction')) throw new Error('Swap failed: ' + swapText.slice(0,200));
+  const { swapTransaction } = JSON.parse(swapText);
 
   const tx = VersionedTransaction.deserialize(Buffer.from(swapTransaction, 'base64'));
   tx.sign([keypair]);
