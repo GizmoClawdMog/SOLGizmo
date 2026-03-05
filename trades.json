@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "n": 1,
+    "date": "2026-03-05",
+    "token": "$xMoney",
+    "action": "BUY",
+    "amount": "0.3 SOL",
+    "result": "Bought successfully, sig: kphVRWgatC6WciMEUQzUeUHkHAW4ksctYzrubh7nvdtSpGDZf7Zc9ViJxYxHb7oCjAWyeTX6cD8AHfv5d3e3hC3",
+    "pnl": "",
+    "color": "teal",
+    "ca": "EnTu4xYmd49b6drs6FwTodxcJW1sHFurbvueyk9Kpump",
+    "ts": 1772717054
+  }
+]
