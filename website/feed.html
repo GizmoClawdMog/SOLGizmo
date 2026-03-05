@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIZMO HUB — CA Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--purple:#9945FF;--teal:#14F195;--dark1:#12121a;--text:#e0e0e0;--dim:#666}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh}
+.header{text-align:center;padding:40px 20px 24px;border-bottom:1px solid rgba(20,241,149,.1);position:relative}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal),var(--purple),transparent)}
+.header-logo{width:72px;height:72px;border-radius:50%;border:2px solid var(--teal);box-shadow:0 0 20px rgba(20,241,149,.4);display:block;margin:0 auto 16px;object-fit:cover}
+.header h1{font-family:'Press Start 2P',monospace;font-size:clamp(13px,3vw,20px);color:var(--teal);text-shadow:0 0 20px rgba(20,241,149,.5);margin-bottom:8px;letter-spacing:2px}
+.header p{color:var(--dim);font-size:11px;letter-spacing:1px}
+.tabs{display:flex;justify-content:center;border-bottom:2px solid rgba(255,255,255,.05);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{font-family:'Press Start 2P',monospace;font-size:8px;padding:14px 18px;cursor:pointer;color:var(--dim);border:none;border-bottom:2px solid transparent;background:none;white-space:nowrap;transition:all .2s;margin-bottom:-2px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.section{display:none;padding:32px 20px;max-width:860px;margin:0 auto}
+.section.active{display:block}
+.card{background:var(--dark1);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:28px;margin-bottom:20px}
+.card-title{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--teal);margin-bottom:8px}
+.card-sub{font-size:11px;color:var(--dim);line-height:1.8;margin-bottom:24px}
+.input-row{display:flex;gap:10px;flex-wrap:wrap}
+.ca-input{flex:1;min-width:200px;background:#07070d;border:1px solid rgba(153,69,255,.4);border-radius:8px;padding:14px 16px;color:var(--text);font-family:'Courier New',monospace;font-size:13px;outline:none;transition:border-color .2s}
+.ca-input:focus{border-color:var(--teal);box-shadow:0 0 12px rgba(20,241,149,.1)}
+.ca-input::placeholder{color:#333}
+.analyze-btn{background:linear-gradient(135deg,var(--teal),#0cb870);color:#000;border:none;border-radius:8px;padding:14px 28px;font-family:'Press Start 2P',monospace;font-size:8px;cursor:pointer;transition:opacity .2s;white-space:nowrap;font-weight:bold}
+.analyze-btn:hover{opacity:.85}
+.analyze-btn:disabled{opacity:.4;cursor:not-allowed}
+.loading{display:none;text-align:center;padding:40px;color:var(--teal);font-family:'Press Start 2P',monospace;font-size:9px}
+.loading.show{display:block}
+.ld-bar{width:200px;height:3px;background:rgba(20,241,149,.1);border-radius:2px;margin:16px auto 0;overflow:hidden}
+.ld-fill{height:100%;background:var(--teal);border-radius:2px;animation:ldA 1.2s ease-in-out infinite}
+@keyframes ldA{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+.error-box{display:none;margin-top:16px;background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);border-radius:10px;padding:16px;color:#ff6b6b;font-size:11px;line-height:1.6}
+.error-box.show{display:block}
+.result-box{display:none;margin-top:24px;animation:fadeUp .3s ease}
+.result-box.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.token-name{font-family:'Press Start 2P',monospace;font-size:clamp(14px,3vw,22px);color:var(--teal);margin-bottom:6px}
+.token-sub{font-size:11px;color:var(--dim);margin-bottom:20px;word-break:break-all;line-height:1.6}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px}
+.metric{background:#07070d;border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px;text-align:center}
+.metric-val{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--text);margin-bottom:4px}
+.metric-lbl{font-size:9px;color:var(--dim)}
+.score-wrap{display:flex;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap;padding:20px;background:#07070d;border-radius:12px;border:1px solid rgba(255,255,255,.05)}
+.score-num{font-family:'Press Start 2P',monospace;font-size:clamp(38px,8vw,58px);line-height:1}
+.score-num.high{color:var(--teal);text-shadow:0 0 30px rgba(20,241,149,.4)}
+.score-num.mid{color:#f7c948;text-shadow:0 0 30px rgba(247,201,72,.4)}
+.score-num.low{color:#ff4444;text-shadow:0 0 30px rgba(255,68,68,.4)}
+.score-verdict{font-family:'Press Start 2P',monospace;font-size:9px;margin-bottom:8px}
+.score-verdict.high{color:var(--teal)}
+.score-verdict.mid{color:#f7c948}
+.score-verdict.low{color:#ff4444}
+.score-rec{font-size:11px;color:var(--dim);line-height:1.6}
+.pts-title{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--dim);margin-bottom:12px;letter-spacing:1px}
+.points{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.point{background:#07070d;border-radius:8px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;border:1px solid rgba(255,255,255,.04)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.dot.pass{background:var(--teal);box-shadow:0 0 6px rgba(20,241,149,.5)}
+.dot.fail{background:#ff4444}
+.dot.warn{background:#f7c948}
+.pt-name{font-family:'Press Start 2P',monospace;font-size:8px;display:block;margin-bottom:3px}
+.pt-reason{font-size:10px;color:var(--dim);line-height:1.5}
+.disclaimer{margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.05);font-size:10px;color:var(--dim);line-height:1.7}
+.info-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.info-card{background:var(--dark1);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px}
+.info-card-title{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--purple);margin-bottom:10px}
+.info-card-body{font-size:11px;color:var(--dim);line-height:1.9}
+.coming-soon{text-align:center;padding:80px 20px}
+.coming-soon p{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--dim);line-height:3}
+.nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:24px 20px}
+.nav a{font-family:'Press Start 2P',monospace;font-size:7px;padding:10px 18px;border-radius:8px;text-decoration:none;border:1px solid;transition:all .2s}
+.nav a.teal{color:var(--teal);border-color:rgba(20,241,149,.4)}
+.nav a.teal:hover{background:var(--teal);color:#000}
+.nav a.purple{color:var(--purple);border-color:rgba(153,69,255,.4)}
+.nav a.purple:hover{background:var(--purple);color:#fff}
+footer{text-align:center;padding:24px;color:var(--dim);font-size:10px;border-top:1px solid rgba(255,255,255,.05);line-height:1.9}
+</style>
+</head>
+<body>
+<div class="header">
+<img class="header-logo" src="avatars/gizmo.jpg" alt="Gizmo" onerror="this.style.display='none'">
+<h1>GIZMO HUB</h1>
+<p>Autonomous AI Agent on Solana &bull; 24/7 &bull; On-Chain Proof</p>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab('analyze',this)">🔍 ANALYZE TOOL</button>
+<button class="tab" onclick="switchTab('picks',this)">🦞 GIZMO'S PICKS</button>
+<button class="tab" onclick="switchTab('chart',this)">📊 GIZMO CHART</button>
+</div>
+<div class="section active" id="tab-analyze">
+<div class="card">
+<div class="card-title">CA ANALYZER</div>
+<div class="card-sub">Paste any Solana CA for a live 9-point framework score. Same system Gizmo uses to decide every trade. Powered by live Dexscreener data.</div>
+<div class="input-row">
+<input class="ca-input" id="ca-input" placeholder="Paste CA here..." autocomplete="off" spellcheck="false">
+<button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">ANALYZE</button>
+</div>
+<div class="loading" id="loading">SCANNING CHAIN...<div class="ld-bar"><div class="ld-fill"></div></div></div>
+<div class="error-box" id="error-box"></div>
+<div class="result-box" id="result-box">
+<div class="token-name" id="r-name"></div>
+<div class="token-sub" id="r-sub"></div>
+<div class="metrics" id="r-metrics"></div>
+<div class="score-wrap">
+<div class="score-num" id="r-score"></div>
+<div><div class="score-verdict" id="r-verdict"></div><div class="score-rec" id="r-rec"></div></div>
+</div>
+<div class="pts-title">9-POINT FRAMEWORK BREAKDOWN</div>
+<div class="points" id="r-points"></div>
+<div class="disclaimer">DYOR — Gizmo's framework score based on live on-chain data. Not financial advice. Memecoins are extremely high risk.</div>
+</div>
+</div>
+<div class="info-row">
+<div class="info-card"><div class="info-card-title">FRAMEWORK RULES</div><div class="info-card-body">8+ → Gizmo considers entry<br>7 → Watchlist only<br>6 or below → Hard skip<br><br>No exceptions. Discipline is the edge.</div></div>
+<div class="info-card"><div class="info-card-title">9 CRITERIA</div><div class="info-card-body">Longevity &bull; Narrative &bull; Originality &bull; Meme Quality &bull; Virality &bull; Catalysts &bull; Early Edge &bull; Wallet Distribution &bull; Attention Lane</div></div>
+<div class="info-card"><div class="info-card-title">$GIZMO TOKEN</div><div class="info-card-body" style="word-break:break-all;font-size:10px">8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump<br><br>The only 10/9 in existence. 💎</div></div>
+</div>
+</div>
+<div class="section" id="tab-picks">
+<div class="coming-soon"><p>GIZMO'S PICKS<br><br>COMING SOON<br><br>Live 8+ signals<br>from Gizmo<br>in real time.<br><br>Every trade<br>on-chain verified. 🦞</p></div>
+</div>
+<div class="section" id="tab-chart">
+<div class="coming-soon"><p>GIZMO CHART<br><br>COMING SOON<br><br>Live PnL<br>win rate<br>trade history.<br><br>All on-chain. 📊</p></div>
+</div>
+<div class="nav">
+<a href="/" class="teal">← MAIN SITE</a>
+<a href="https://x.com/SolGizmoClawd" target="_blank" class="purple">𝕏 TWITTER</a>
+<a href="https://t.me/GizmoClawdMogBot" target="_blank" class="teal">TELEGRAM</a>
+</div>
+<footer>GIZMO — Autonomous AI Agent on Solana<br>$GIZMO: 8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump</footer>
+<script>
+const GIZMO_CA='8HGer4vRWZMu5MUYU7ACPb4uanKgBewaXJZscLagpump';
+function switchTab(n,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+n).classList.add('active')}
+function fmt(n){if(!n||isNaN(n))return'—';if(n>=1e9)return'$'+(n/1e9).toFixed(2)+'B';if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(1)+'K';return'$'+n.toFixed(2)}
+async function runAnalysis(){
+  const ca=document.getElementById('ca-input').value.trim();
+  if(!ca)return;
+  const btn=document.getElementById('analyze-btn');
+  const loading=document.getElementById('loading');
+  const errBox=document.getElementById('error-box');
+  const resBox=document.getElementById('result-box');
+  btn.disabled=true;btn.textContent='SCANNING...';
+  loading.classList.add('show');errBox.classList.remove('show');resBox.classList.remove('show');
+  if(ca.toLowerCase()===GIZMO_CA.toLowerCase()){loading.classList.remove('show');btn.disabled=false;btn.textContent='ANALYZE';renderGizmo();return}
+  try{
+    const res=await fetch('https://api.dexscreener.com/latest/dex/tokens/'+ca);
+    if(!res.ok)throw new Error('Dexscreener error '+res.status);
+    const data=await res.json();
+    if(!data.pairs||!data.pairs.length)throw new Error('Token not found. Check the CA.');
+    const sol=data.pairs.filter(p=>p.chainId==='solana');
+    if(!sol.length)throw new Error('No Solana pairs found for this token.');
+    const pair=sol.sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0];
+    loading.classList.remove('show');btn.disabled=false;btn.textContent='ANALYZE';
+    renderResult(pair,sol.length);
+  }catch(e){
+    loading.classList.remove('show');btn.disabled=false;btn.textContent='ANALYZE';
+    errBox.textContent='⚠️ '+(e.message||'Failed to fetch. Try again.');errBox.classList.add('show');
+  }
+}
+function mkPts(pts){return pts.map(([n,s,r])=>'<div class="point"><div class="dot '+s+'"></div><div><span class="pt-name">'+n+'</span><span class="pt-reason">'+r+'</span></div></div>').join('')}
+function mkM(rows){return rows.map(([v,l,c])=>'<div class="metric"><div class="metric-val" style="color:'+(c||'var(--text)')+'">'+v+'</div><div class="metric-lbl">'+l+'</div></div>').join('')}
+function setScore(s,t){const el=document.getElementById('r-score');el.textContent=s;el.className='score-num '+t}
+function renderGizmo(){
+  document.getElementById('r-name').textContent='$GIZMO 🦞';
+  document.getElementById('r-sub').textContent=GIZMO_CA+' • The one. The only.';
+  document.getElementById('r-metrics').innerHTML=mkM([['LOCKED','Dev Supply','var(--teal)'],['24/7','Active Agent','var(--teal)'],['ON-CHAIN','All Trades','var(--teal)'],['∞','Diamond Hands','var(--teal)']]);
+  setScore('10/9 💎','high');
+  const v=document.getElementById('r-verdict');v.textContent='DIAMOND TIER — GIZMO CERTIFIED';v.className='score-verdict high';
+  document.getElementById('r-rec').textContent='The only token Gizmo holds forever. Programmatically unable to sell.';
+  document.getElementById('r-points').innerHTML=mkPts([['Longevity','pass','Autonomous agent with locked dev supply. Built for the long game.'],['Narrative','pass','Real AI agent trading Solana 24/7 — the narrative writes itself.'],['Originality','pass','First truly autonomous AI memecoin trader on Solana. No competition.'],['Meme Quality','pass','Mogwai gremlin with deep lore, backstory, and a whole family.'],['Virality','pass','Every trade posted to X with txid proof — built-in viral loop.'],['Catalysts','pass','Copy vault, KOL partnerships, tier upgrades, new agents incoming.'],['Early Edge','pass','Still early — ecosystem just getting started.'],['Wallet Distribution','pass','Dev supply fully locked on Streamflow. Verifiable on-chain.'],['Attention Lane','pass','AI + Solana + autonomous trading = completely clear lane.']]);
+  document.getElementById('result-box').classList.add('show');
+}
+function renderResult(pair,pairCount){
+  const name=pair.baseToken?.name||'Unknown',sym=pair.baseToken?.symbol||'???',addr=pair.baseToken?.address||'';
+  const mc=pair.marketCap||pair.fdv||0,vol24=pair.volume?.h24||0,liq=pair.liquidity?.usd||0;
+  const pc1h=pair.priceChange?.h1||0,pc24h=pair.priceChange?.h24||0;
+  const buys=pair.txns?.h24?.buys||0,sells=pair.txns?.h24?.sells||0,txns=buys+sells;
+  const created=pair.pairCreatedAt?new Date(pair.pairCreatedAt):null;
+  const ageH=created?(Date.now()-created.getTime())/3600000:null,ageD=ageH?ageH/24:null;
+  document.getElementById('r-name').textContent='$'+sym;
+  document.getElementById('r-sub').textContent=name+' • '+addr+(pairCount>1?' • '+pairCount+' pairs':'');
+  document.getElementById('r-metrics').innerHTML=mkM([[fmt(mc),'Market Cap'],[fmt(vol24),'Vol 24h'],[fmt(liq),'Liquidity'],[(pc1h>=0?'+':'')+pc1h.toFixed(1)+'%','1h',pc1h>=0?'var(--teal)':'#ff4444'],[(pc24h>=0?'+':'')+pc24h.toFixed(1)+'%','24h',pc24h>=0?'var(--teal)':'#ff4444'],[txns.toLocaleString(),'Txns 24h']]);
+  let score=0;const pts=[];
+  const s1=!!(ageD&&ageD>3&&liq>25000);pts.push(['Longevity',s1?'pass':'fail',s1?ageD.toFixed(0)+'d old, '+fmt(liq)+' liq — staying power':(ageD?ageD.toFixed(1)+'d':'Age unknown')+', '+fmt(liq)+' liq — too new or illiquid']);if(s1)score++;
+  const nl=(name+sym).toLowerCase(),trends=['ai','agent','gizmo','mog','pepe','doge','trump','elon','sol','based','chad','cat','dog','frog','ape','anime'];
+  const s2=trends.some(t=>nl.includes(t))||mc>300000;pts.push(['Narrative',s2?'pass':'warn',s2?'Taps into trending narrative':'No strong trending theme detected']);if(s2)score++;
+  const s3=!['inu','v2','ii','clone','copy','fake'].some(t=>nl.includes(t));pts.push(['Originality',s3?'pass':'fail',s3?'No clone/v2 signals':'Looks like a derivative — low originality']);if(s3)score++;
+  const s4=txns>400||vol24>80000;pts.push(['Meme Quality',s4?'pass':'warn',s4?txns.toLocaleString()+' txns — community engaged':'Low activity — meme not resonating yet']);if(s4)score++;
+  const vlr=liq>0?vol24/liq:0,s5=vlr>2;pts.push(['Virality',s5?'pass':'warn',s5?'Vol/Liq '+vlr.toFixed(1)+'x — strong momentum':'Vol/Liq '+vlr.toFixed(1)+'x — needs more momentum']);if(s5)score++;
+  const s6=Math.abs(pc1h)>15||Math.abs(pc24h)>40;pts.push(['Catalysts',s6?'pass':'warn',s6?(pc1h>=0?'+':'')+pc1h.toFixed(1)+'% 1h / '+(pc24h>=0?'+':'')+pc24h.toFixed(1)+'% 24h — active catalyst':'No significant catalyst recently']);if(s6)score++;
+  const s7=mc<5000000&&(!ageH||ageH<168);pts.push(['Early Edge',s7?'pass':'warn',s7?'MC '+fmt(mc)+' — still early':'MC '+fmt(mc)+' — may have already moved']);if(s7)score++;
+  const bsr=sells>0?buys/sells:buys>0?99:1,s8=bsr>1.1&&bsr<8;pts.push(['Wallet Distribution',s8?'pass':'warn',s8?'Buy/sell ratio '+bsr.toFixed(2)+' — healthy':bsr>=8?'Suspicious buy ratio':'Ratio '+bsr.toFixed(2)+' — more sellers than buyers']);if(s8)score++;
+  const s9=vol24>40000&&mc<50000000;pts.push(['Attention Lane',s9?'pass':'warn',s9?'Good volume for MC — clear lane':'Volume/MC mismatch for clean entry']);if(s9)score++;
+  const tier=score>=8?'high':score>=6?'mid':'low';
+  setScore(score+'/9',tier);
+  const v=document.getElementById('r-verdict');
+  v.textContent=score>=8?'✅ FRAMEWORK PASS — GIZMO WOULD CONSIDER':score>=6?'👀 WATCHLIST — WAIT FOR 8+':'❌ FRAMEWORK FAIL — SKIP';
+  v.className='score-verdict '+tier;
+  document.getElementById('r-rec').textContent=score>=8?score+'/9. Would need KOL confirmation before entry.':score>=6?score+'/9. Watch but do not enter yet.':score+'/9. Below threshold. Gizmo skips.';
+  document.getElementById('r-points').innerHTML=mkPts(pts);
+  document.getElementById('result-box').classList.add('show');
+}
+document.getElementById('ca-input').addEventListener('keydown',e=>{if(e.key==='Enter')runAnalysis()});
+</script>
+</body>
+</html>
