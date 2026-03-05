@@ -1,5 +1,41 @@
 [
   {
+    "n": 4,
+    "date": "2026-03-05",
+    "token": "memecoin",
+    "action": "BUY",
+    "amount": "0.3 SOL",
+    "result": "Emergency rip buy, sig: 5SGGRF3udVEowxXb2qiGnU3YweFiD6XhsQLyA3qwgGwjw2zUtP66cjvCGrRBCNHQPrxyEB69cZahTTnGPHdZbTRc",
+    "pnl": "",
+    "color": "teal",
+    "ca": "DoFwCnrfaa97mdRSibH72oA9DBizoxSgtJ7WNCRJpump",
+    "ts": 1772735682
+  },
+  {
+    "n": 3,
+    "date": "2026-03-05",
+    "token": "POPNUT",
+    "action": "BUY",
+    "amount": "0.3 SOL",
+    "result": "Emergency rip buy, sig: 4deUM85DDmkSZXXJ5FULMJQwcVbMLYTXz92rdd3azXiy9YDMF2jNLXoTicRh5JYYdUqntRRNwT5fRYstKquK7Jqu",
+    "pnl": "",
+    "color": "teal",
+    "ca": "9Gqo8SBzdtDaYQBhDU83Ek2BNSZRHzS4z5YHZ1sMpump",
+    "ts": 1772735682
+  },
+  {
+    "n": 2,
+    "date": "2026-03-05",
+    "token": "WhiteHouse",
+    "action": "BUY",
+    "amount": "0.3 SOL",
+    "result": "Emergency rip buy, sig: 3c1mfqV8pUnNr9aqcrJV5BHaZsZUH4SomDNZFs7azuvRj1oPmzGtpjps9j5p2g6ghP5fGYRtjNJ3tvv8JcKUbs7k",
+    "pnl": "",
+    "color": "teal",
+    "ca": "7oXNE1dbpHUp6dn1JF8pRgCtzfCy4P2FuBneWjZHpump",
+    "ts": 1772735682
+  },
+  {
     "n": 1,
     "date": "2026-03-05",
     "token": "$xMoney",
