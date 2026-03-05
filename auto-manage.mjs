@@ -85,7 +85,7 @@ async function sell(ca, pct, posName, entryMC, currentMC) {
 
 async function buy(ca, amount) {
   try {
-    const out = execSync(`cd ${BASE_DIR} && node trade.mjs ${ca} ${amount}`, { timeout: 30000 }).toString();
+    const out = execSync(`cd /Users/younghogey/.openclaw/workspace/SOLGizmo && node trade.mjs ${ca} ${amount}`, { timeout: 30000 }).toString();
     console.log(`[${ts()}] BUY ${amount} SOL: ${out.trim()}`);
     return out.includes('CONFIRMED');
   } catch(e) { console.log(`[${ts()}] BUY FAILED: ${e.message?.substring(0,100)}`); return false; }
