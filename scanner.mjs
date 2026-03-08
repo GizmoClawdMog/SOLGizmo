@@ -60,6 +60,29 @@ async function scan() {
     }
   } catch (e) { console.error('Pump.fun err:', e.message); }
 
+
+  // 4. DexScreener trending Solana pairs
+  try {
+    const r = await fetch('https://api.dexscreener.com/latest/dex/search?q=solana');
+    const d = await r.json();
+    const trending = (d.pairs || []).filter(p => p.chainId === 'solana').slice(0, 15);
+    for (const p of trending) {
+      const ca = p.baseToken?.address;
+      if (ca) all.push({ ...p, ca, source: 'DEX-TREND' });
+    }
+  } catch {}
+
+  // 5. Pump.fun graduating tokens (best entry point)
+  try {
+    const r = await fetch('https://frontend-api-v3.pump.fun/coins?offset=0&limit=20&sort=last_trade_timestamp&order=DESC&includeNsfw=false&graduating=true', { headers: PF_HEADERS });
+    const coins = await r.json();
+    for (const c of (coins.coins || coins || []).slice(0, 15)) {
+      const p = await getDexInfo(c.mint);
+      if (p) all.push({ ...p, ca: c.mint, source: 'PUMP-GRAD' });
+      await new Promise(r => setTimeout(r, 150));
+    }
+  } catch {}
+
   // Deduplicate & score
   const seen = new Set();
   const results = [];
@@ -87,7 +110,7 @@ async function scan() {
     if (m5 > 5) score += 1;
     if (buys > sells * 1.3 && buys > 50) score += 1;
     if (age <= 48) score += 1;
-    if (p.source.includes('BOOST')) score += 1;
+    if (p.source.includes('BOOST') || p.source.includes('GRAD')) score += 1;
 
     results.push({
       symbol: p.baseToken?.symbol || '???',
@@ -99,7 +122,7 @@ async function scan() {
   results.sort((a, b) => b.score - a.score);
 
   console.log('=== 🦞 GIZMO SCANNER v2 ===');
-  console.log(`Sources: DexScreener + Pump.fun | ${results.length} tokens scanned\n`);
+  console.log(`Sources: DexScreener + Pump.fun + Trending + Graduating | ${results.length} tokens scanned\n`);
 
   for (const t of results.slice(0, 20)) {
     const fire = t.score >= 7 ? '🔥🔥🔥' : t.score >= 5 ? '🔥🔥' : t.score >= 3 ? '🔥' : '';
@@ -114,3 +137,4 @@ async function scan() {
 }
 
 scan().catch(e => console.error(e.message));
+// THIS FILE HAS BEEN PATCHED — see scanner.mjs for original
