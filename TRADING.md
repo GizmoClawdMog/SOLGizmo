@@ -51,3 +51,11 @@ NEVER hallucinate trades. Real signatures only.
 
 ## Special Holdings
 $GIZMO (BPKAxR6Em4pxxvxFcDn8wHjdiZSnEBxNvtv9gUSzpump) = HOLD FOREVER. Never sell.
+
+## After Every Trade (exact commands)
+cd ~/.openclaw/workspace/SOLGizmo
+# 1. Update trades.json with real tx sig
+# 2. Push to SOLGizmo repo (updates website live feed)
+git add trades.json && git commit -m "Trade: TOKEN ACTION PnL" && git push
+# 3. Tweet PnL with solscan link
+node tweet.mjs "text with solscan link"
