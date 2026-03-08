@@ -1,5 +1,18 @@
 [
   {
+    "n": 18,
+    "date": "2026-03-08",
+    "token": "memeless",
+    "action": "BUY",
+    "amount": "0.3 SOL",
+    "result": "Bought 251643752675 tokens",
+    "pnl": "",
+    "color": "teal",
+    "ca": "8PfLjXu3ETFARUiCsjfwNgj77GUehXZ5co19ZbsEpump",
+    "tx": "5R8gpw7U3e6Sn7Xo92NYTTwLG3V7gt3YsYXgAVPYX4MgRp3gMLGNFbhXues6PNQPA4AfLaRdVSBpUay4854zh5ZG",
+    "ts": 1772957107
+  },
+  {
     "n": 15,
     "date": "2026-03-07",
     "token": "FINDER",
