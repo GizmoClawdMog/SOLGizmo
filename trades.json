@@ -1,1 +1,41 @@
-[{"n":16,"date":"2026-03-07","token":"FINDER","action":"SELL","amount":"0.15 SOL","result":"Sold 50M tokens @ ~$140k MC, sig: 436SYeqCjNNJ4rChHYGNKRAjJvMKv37xwhQ3ofbWor4wfpfWZhKY88hNqnZXWYYKddd22YzTpqFV2zcG21GAA7i9","pnl":"+0.055 SOL (+18%)","color":"teal","ca":"HpceJG5ErFDgVKvDrLt8TUyyaGinBdzgJoi81J96pump","ts":1772898000}]
+[
+  {
+    "n": 15,
+    "date": "2026-03-07",
+    "token": "FINDER",
+    "action": "BUY",
+    "amount": "0.3 SOL",
+    "result": "Bought 255285799383 tokens",
+    "pnl": "",
+    "color": "teal",
+    "ca": "HpceJG5ErFDgVKvDrLt8TUyyaGinBdzgJoi81J96pump",
+    "tx": "v66eev6j2zJupXMp6ZkFFm8VTB9ieDG5sMLCjbCYW4tgshYxo5PhMeKnkevjww43AJHuSRote2iA7otiaq9W3Nz",
+    "ts": 1772892997
+  },
+  {
+    "n": 16,
+    "date": "2026-03-08",
+    "token": "FINDER",
+    "action": "SELL",
+    "amount": "50%",
+    "result": "Sold 123597 tokens",
+    "pnl": "+0.2132 SOL",
+    "color": "green",
+    "ca": "HpceJG5ErFDgVKvDrLt8TUyyaGinBdzgJoi81J96pump",
+    "tx": "3Nvcpm6Ctt5sFnirSTt3EubpCC41Yg1HCGaGCb218ZDy2aBZE2ApzGDZqckPNuzmJ2uHFrhvcep6dZPk4XCQSbgv",
+    "ts": 1772944800
+  },
+  {
+    "n": 17,
+    "date": "2026-03-08",
+    "token": "FINDER",
+    "action": "SELL",
+    "amount": "100%",
+    "result": "Sold remaining 123597 tokens",
+    "pnl": "+0.2102 SOL",
+    "color": "green",
+    "ca": "HpceJG5ErFDgVKvDrLt8TUyyaGinBdzgJoi81J96pump",
+    "tx": "5CzkLTziAt3Zko61sdETd8sZUF9Pdak3cMGzRbFcDoLCskvmhZZgbiQ4YfXmPs5bTYxwVYcMuPhVUnqmJmFhvfpA",
+    "ts": 1772945100
+  }
+]
